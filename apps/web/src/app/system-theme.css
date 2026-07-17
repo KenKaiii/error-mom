@@ -474,6 +474,10 @@ a.button:hover {
   font-size: 17px;
   font-weight: 400;
   text-decoration: none;
+  transition:
+    color 70ms ease-out,
+    background-color 70ms ease-out,
+    border-color 70ms ease-out;
 }
 
 .status-tab:hover {
