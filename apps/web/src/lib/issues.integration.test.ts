@@ -1,0 +1,69 @@
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import type { ErrorEvent } from "@kenkaiiii/error-mom-protocol";
+
+const databaseUrl = process.env.TEST_DATABASE_URL;
+
+describe.runIf(Boolean(databaseUrl))("issue ingestion with PostgreSQL", () => {
+  beforeAll(async () => {
+    process.env.DATABASE_URL = databaseUrl;
+    const { database, ensureSchema } = await import("./db");
+    await ensureSchema();
+    await database()`TRUNCATE projects CASCADE`;
+  });
+
+  afterAll(async () => {
+    const { database } = await import("./db");
+    await database().end();
+  });
+
+  it("deduplicates retries, groups repeats, and reopens fixed releases", async () => {
+    const { createProject } = await import("./projects");
+    const { findProjectByIngestKey, getIssue, ingestEvents, listIssues, resolveIssue } =
+      await import("./issues");
+    const project = await createProject("Video Editor");
+    expect((await findProjectByIngestKey(project.ingestKey))?.id).toBe(project.id);
+
+    const first = event("0c80c1f4-84dc-40d2-bdf9-167679238e91", "1.0.0", 42, 12);
+    await ingestEvents(project.id, [first, first]);
+    const repeated = event("c6ef0e95-e9c6-4a4a-8f60-f3c212ed82e1", "1.0.0", 981, 88);
+    await ingestEvents(project.id, [repeated]);
+
+    const openIssues = await listIssues({ projectId: project.id });
+    expect(openIssues).toHaveLength(1);
+    expect(openIssues[0]?.quantity).toBe(2);
+
+    const issueId = openIssues[0]!.id;
+    await resolveIssue(issueId, "1.1.0");
+    await ingestEvents(project.id, [
+      event("7333036c-26ac-42a2-88a3-cc63418ce77b", "1.0.1", 77, 91),
+    ]);
+    expect((await getIssue(issueId))?.status).toBe("resolved");
+
+    await ingestEvents(project.id, [
+      event("b457e4b4-da26-45a5-8a97-30deaa7c986d", "1.1.0", 51, 102),
+    ]);
+    const regressed = await getIssue(issueId);
+    expect(regressed?.status).toBe("regressed");
+    expect(regressed?.quantity).toBe(4);
+  });
+});
+
+function event(eventId: string, release: string, userId: number, line: number): ErrorEvent {
+  return {
+    eventId,
+    timestamp: new Date().toISOString(),
+    level: "error",
+    error: {
+      name: "TypeError",
+      message: `Could not render user ${userId}`,
+      stack: `TypeError: Could not render user ${userId}\n    at render (/app/src/render.ts:${line}:4)`,
+    },
+    environment: "test",
+    release,
+    platform: "linux",
+    runtime: "node test",
+    breadcrumbs: [],
+    tags: {},
+    context: {},
+  };
+}

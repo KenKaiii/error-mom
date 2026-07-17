@@ -1,0 +1,28 @@
+{
+  "name": "error-mom-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.17.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "check": "pnpm --filter @kenkaiiii/error-mom-protocol build && pnpm -r check",
+    "dev": "pnpm --filter error-mom-web dev",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "pnpm -r test",
+    "db:migrate": "pnpm --filter error-mom-web db:migrate"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "prettier": "^3.8.0",
+    "typescript": "5.9.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "typescript": "5.9.3"
+    }
+  }
+}

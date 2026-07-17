@@ -1,0 +1,33 @@
+{
+  "name": "@kenkaiiii/error-mom-protocol",
+  "version": "0.1.0",
+  "description": "Shared event protocol for Error Mom",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "check": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "vitest": "^4.1.10"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT"
+}
