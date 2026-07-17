@@ -8,7 +8,11 @@ export default async function LoginPage() {
   return (
     <main className="login-shell">
       <section className="login-intro" aria-labelledby="login-title">
-        <h1 id="login-title">Every error, agent-ready.</h1>
+        <h1 id="login-title">
+          Every error,
+          <br />
+          <span>agent-ready.</span>
+        </h1>
       </section>
       <section className="login-panel" aria-label="Sign in">
         <h2>Enter your admin token</h2>
