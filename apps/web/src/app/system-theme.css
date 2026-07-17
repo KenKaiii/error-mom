@@ -211,50 +211,22 @@ a.button:hover {
 
 /* Login window */
 .login-shell {
-  position: relative;
-  width: min(940px, calc(100% - 32px));
-  min-height: 380px;
-  margin: max(32px, calc((100vh - 380px) / 2)) auto;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0;
-  border: 2px solid var(--mac-black);
-  border-radius: 0;
-  padding-block: 34px 0;
-  background: var(--mac-white);
-  box-shadow: 3px 3px 0 var(--mac-black);
-}
-
-.login-shell::before {
-  content: "";
-  position: absolute;
-  inset: 5px 5px auto;
-  height: 24px;
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--mac-black) 0,
-    var(--mac-black) 2px,
-    var(--mac-white) 2px,
-    var(--mac-white) 4px
-  );
-}
-
-.login-shell::after {
-  content: "Error Mom";
-  position: absolute;
-  inset-block-start: 4px;
-  inset-inline-start: 50%;
-  padding: 2px 12px 4px;
-  color: var(--mac-black);
-  background: var(--mac-white);
-  font-family: var(--font-display);
-  font-size: 20px;
-  translate: -50% 0;
+  width: min(1180px, calc(100% - 48px));
+  min-height: 100vh;
+  margin: 0 auto;
+  grid-template-columns: minmax(0, 1fr) minmax(440px, 0.82fr);
+  align-items: center;
+  gap: clamp(48px, 7vw, 96px);
+  border: 0;
+  padding: 48px 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .login-intro {
   display: grid;
   align-items: center;
-  padding: 40px;
+  padding: 0;
 }
 
 .login-intro h1 {
@@ -271,14 +243,42 @@ a.button:hover {
 }
 
 .login-panel {
+  position: relative;
   min-height: auto;
   justify-content: center;
   gap: 24px;
-  border: 0;
+  border: 2px solid var(--mac-black);
   border-radius: 0;
-  padding: 36px;
+  padding: 64px 36px 36px;
   background: var(--mac-light);
-  box-shadow: none;
+  box-shadow: 3px 3px 0 var(--mac-black);
+}
+
+.login-panel::before {
+  content: "";
+  position: absolute;
+  inset: 5px 5px auto;
+  height: 24px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--mac-black) 0,
+    var(--mac-black) 2px,
+    var(--mac-white) 2px,
+    var(--mac-white) 4px
+  );
+}
+
+.login-panel::after {
+  content: "Error Mom";
+  position: absolute;
+  inset-block-start: 4px;
+  inset-inline-start: 50%;
+  padding: 2px 12px 4px;
+  color: var(--mac-black);
+  background: var(--mac-white);
+  font-family: var(--font-display);
+  font-size: 20px;
+  translate: -50% 0;
 }
 
 .login-panel h2 {
@@ -956,18 +956,20 @@ a.button:hover {
 
 @media (max-width: 900px) {
   .login-shell {
+    width: min(620px, calc(100% - 48px));
+    min-height: auto;
+    margin: 0 auto;
     grid-template-columns: 1fr;
-    margin-block: 24px;
+    gap: 40px;
+    padding: 56px 0;
   }
 
   .login-intro {
-    border-inline-end: 0;
-    border-block-end: 2px solid var(--mac-black);
-    padding: 32px 36px;
+    padding: 0 8px;
   }
 
   .login-panel {
-    padding: 32px 36px 36px;
+    padding: 64px 36px 36px;
   }
 
   .dashboard-shell {
@@ -1007,18 +1009,20 @@ a.button:hover {
     font-size: 16px;
   }
 
-  .login-shell,
   .issue-detail {
     width: calc(100% - 16px);
   }
 
   .login-shell {
-    margin-block: 8px;
+    width: calc(100% - 24px);
+    margin: 0 auto;
+    gap: 32px;
+    padding: 32px 0 48px;
   }
 
   .login-intro {
-    min-height: 220px;
-    padding: 28px 24px;
+    min-height: auto;
+    padding: 0 8px;
   }
 
   .login-intro h1 {
@@ -1026,7 +1030,7 @@ a.button:hover {
   }
 
   .login-panel {
-    padding: 28px 24px;
+    padding: 60px 24px 28px;
   }
 
   .dashboard-shell,

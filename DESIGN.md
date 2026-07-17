@@ -31,7 +31,7 @@ First glance shows the ordered issue queue and occurrence totals. Second glance 
 - **Motion:** 80ms stepped color/shadow feedback only. Hover uses mid-gray with black text and borders; solid black is reserved for selected/status states. No hover translation; reduced motion removes non-essential interpolation.
 - **Controls:** System.css is imported from `@sakun/system.css`; local overrides adapt its buttons, inputs, selects, scrollbars, title bars, dialogs, and fonts to Error Mom components.
 - **Icons:** Lucide remains only for functional labels already present; the select uses System.css's native asset and Error Mom has no decorative logo.
-- **Responsive:** Desktop keeps a sidebar and issue table inside one Macintosh window. Narrow layouts stack project controls and turn table rows into bordered labeled records without losing selected scope.
+- **Responsive:** Login places the two-line hero directly on the checkerboard and isolates authentication in its own bordered window; the pair stacks cleanly on narrow screens. Desktop dashboard keeps a sidebar and issue table inside one Macintosh window, while narrow rows become bordered labeled records.
 
 ## Core states
 
@@ -52,9 +52,9 @@ First glance shows the ordered issue queue and occurrence totals. Second glance 
 
 ## Rendered review
 
-System.css captures cover the login window, seeded dashboard, issue detail, desktop 1440×960, and mobile 390×844. The two-line hero, project dropdown, modal workflow, grouped fixtures, and renamed Reopened state remain intact.
+System.css captures cover the detached login hero/token window, seeded dashboard, issue detail, desktop 1440×960, and mobile 390×844. The project dropdown, modal workflow, grouped fixtures, and renamed Reopened state remain intact.
 
 - **Score: 22/24.** Brief specificity 2, hierarchy 2, composition 2, consistency 2, typography 2, material logic 2, state completeness 2, responsive behavior 2, accessibility 1, motion 2, authenticity 2, distinctiveness 1.
 - **Verified:** Desktop/mobile rendering, login, dashboard, detail evidence, responsive card reflow, visible labels, monochrome state differentiation, reduced-motion CSS, forced-colors CSS, production build, TypeScript checks, and PostgreSQL-backed seeded data.
 - **Unverified:** Automated accessibility scan, keyboard-only traversal, and 200% zoom.
-- **Weakest revision:** A spacing audit removed the sign-out form's blank white wrapper, compacted login framing, and reduced the oversized stack-evidence block while preserving readable density.
+- **Weakest revision:** Authentication initially trapped the hero and form inside one oversized frame. The hero now sits directly on the checkerboard while the token form owns the only login window and title bar.
