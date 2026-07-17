@@ -72,8 +72,7 @@ export default async function IssuePage({ params }: { params: Promise<{ id: stri
             <div>
               <h2 id="resolve-title">Fix shipped?</h2>
               <p>
-                Resolved issues leave the default agent queue. A recurrence in the fixed release
-                reopens it.
+                Resolved issues leave the default agent queue. If the error returns, it reopens.
               </p>
             </div>
             <ResolveIssueForm issueId={issue.id} suggestedRelease={issue.latestRelease ?? ""} />
@@ -81,10 +80,7 @@ export default async function IssuePage({ params }: { params: Promise<{ id: stri
         ) : (
           <section className="resolved-panel">
             <h2>Resolved in {issue.fixedInRelease}</h2>
-            <p>
-              This issue is hidden from the default agent queue and retained for regression
-              detection.
-            </p>
+            <p>This issue stays in history so Error Mom can reopen it if the error returns.</p>
           </section>
         )}
 

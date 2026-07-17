@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { IssueTable } from "@/components/IssueTable";
 import { ProjectCreator } from "@/components/ProjectCreator";
+import { ProjectSelector } from "@/components/ProjectSelector";
 import { isPageAuthenticated } from "@/lib/auth";
 import { formatQuantity } from "@/lib/format";
 import { listIssues, listProjects } from "@/lib/issues";
@@ -55,31 +56,11 @@ export default async function DashboardPage({
       </header>
 
       <aside className="project-rail" aria-label="Project scope">
-        <div className="rail-heading">
-          <span>Projects</span>
-          <span>{projects.length}</span>
-        </div>
-        <nav className="project-list">
-          <Link
-            className={!selectedProject ? "project-link active" : "project-link"}
-            href={statusHref(status)}
-          >
-            <span>All projects</span>
-            <strong>{projects.reduce((total, project) => total + project.openIssues, 0)}</strong>
-          </Link>
-          {projects.map((project) => (
-            <Link
-              key={project.id}
-              className={
-                selectedProject?.id === project.id ? "project-link active" : "project-link"
-              }
-              href={statusHref(status, project.id)}
-            >
-              <span>{project.name}</span>
-              <strong>{project.openIssues}</strong>
-            </Link>
-          ))}
-        </nav>
+        <ProjectSelector
+          projects={projects}
+          selectedProjectId={selectedProject?.id ?? ""}
+          status={status}
+        />
         <ProjectCreator />
       </aside>
 
@@ -106,7 +87,7 @@ export default async function DashboardPage({
               href={statusHref(item, selectedProject?.id)}
               aria-current={status === item ? "page" : undefined}
             >
-              {item}
+              {item === "regressed" ? "Reopened" : item}
             </Link>
           ))}
         </nav>

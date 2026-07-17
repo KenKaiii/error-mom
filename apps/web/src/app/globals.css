@@ -292,9 +292,8 @@ label {
   background: #ece8df;
 }
 
-.rail-heading {
-  display: flex;
-  justify-content: space-between;
+.project-selector label {
+  margin-block-end: 8px;
   padding-inline: 8px;
   color: var(--ink-muted);
   font-family: var(--font-mono), "IBM Plex Mono", monospace;
@@ -303,47 +302,37 @@ label {
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
-
-.project-list {
-  display: grid;
-  gap: 4px;
+.select-control {
+  position: relative;
 }
-
-.project-link {
-  min-height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  border: 1px solid transparent;
+.select-control select {
+  width: 100%;
+  min-height: 44px;
+  appearance: none;
+  border: 1px solid var(--line-strong);
   border-radius: var(--radius-sm);
-  padding: 8px 10px;
-  color: var(--ink-muted);
-  text-decoration: none;
-  transition:
-    color 160ms var(--ease),
-    background-color 160ms var(--ease),
-    border-color 160ms var(--ease);
-}
-
-.project-link:hover {
-  color: var(--ink);
-  background: rgb(255 255 255 / 46%);
-}
-
-.project-link.active {
+  padding: 8px 38px 8px 11px;
   color: var(--ink);
   background: var(--surface-strong);
-  border-color: var(--line);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
   box-shadow: 0 2px 8px rgb(52 44 32 / 5%);
 }
-
-.project-link strong {
-  min-width: 24px;
-  color: var(--ink);
-  font-family: var(--font-mono), "IBM Plex Mono", monospace;
-  font-size: 12px;
-  text-align: end;
+.select-control select:hover {
+  border-color: #878075;
+}
+.select-control select:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+.select-control svg {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: 12px;
+  translate: 0 -50%;
+  color: var(--ink-muted);
+  pointer-events: none;
 }
 
 .project-add {
@@ -1054,23 +1043,10 @@ label {
     padding: 16px 20px;
   }
 
-  .project-list {
-    display: flex;
-    overflow-x: auto;
-    padding-block-end: 4px;
-  }
-
-  .project-link {
-    flex: 0 0 auto;
-    min-width: 150px;
-  }
-
+  .project-selector,
   .project-add {
+    width: 100%;
     max-width: 420px;
-  }
-
-  .rail-heading {
-    display: none;
   }
 
   .dashboard-main {
