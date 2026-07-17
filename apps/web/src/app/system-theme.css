@@ -41,7 +41,7 @@ body {
   color: var(--mac-black);
   background: transparent;
   font-family: var(--font-ui);
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1.25;
   image-rendering: pixelated;
   text-rendering: geometricPrecision;
@@ -87,7 +87,7 @@ label {
   margin-block-end: 6px;
   color: var(--mac-black);
   font-family: var(--font-ui);
-  font-size: 18px;
+  font-size: 16px;
 }
 
 input {
@@ -99,7 +99,7 @@ input {
   background: var(--mac-white);
   box-shadow: inset 1px 1px 0 var(--mac-mid);
   font-family: var(--font-ui);
-  font-size: 18px;
+  font-size: 16px;
 }
 
 input:hover {
@@ -131,7 +131,7 @@ input::placeholder {
   background: var(--mac-white);
   box-shadow: 2px 2px 0 var(--mac-black);
   font-family: var(--font-ui);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
   line-height: 1;
   transition:
@@ -199,7 +199,7 @@ a.button:hover {
   margin-block-end: 5px;
   color: var(--mac-black);
   font-family: var(--font-ui);
-  font-size: 18px;
+  font-size: 16px;
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -335,7 +335,7 @@ a.button:hover {
   padding: 2px 10px;
   color: var(--mac-black);
   background: var(--mac-white);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
 }
 
@@ -348,7 +348,7 @@ a.button:hover {
 .app-header .button {
   min-height: 30px;
   padding-inline: 10px;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .project-rail {
@@ -363,7 +363,7 @@ a.button:hover {
   padding-inline: 0;
   color: var(--mac-black);
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 16px;
   letter-spacing: 0;
   text-transform: none;
 }
@@ -378,7 +378,7 @@ a.button:hover {
   background-color: var(--mac-white);
   background-position: center right 3px;
   font-family: var(--font-ui);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
   box-shadow: 2px 2px 0 var(--mac-black);
 }
@@ -431,7 +431,7 @@ a.button:hover {
 .queue-metrics dt {
   color: var(--mac-black);
   font-family: var(--font-ui);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
   letter-spacing: 0;
 }
@@ -483,7 +483,7 @@ a.button:hover {
   color: var(--mac-black);
   background: var(--mac-light);
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
   letter-spacing: 0;
 }
@@ -545,17 +545,18 @@ a.button:hover {
 .issue-link strong {
   color: var(--mac-black);
   font-family: var(--font-ui);
-  font-size: 17px;
+  font-size: 22px;
   font-weight: 400;
+  line-height: 1.15;
 }
 
 .issue-link small {
   color: var(--mac-black);
   font-family: var(--font-mono);
-  font-size: 18px;
+  font-size: 16px;
 }
 .table-time {
-  font-size: 18px;
+  font-size: 16px;
   white-space: nowrap;
 }
 
@@ -576,7 +577,7 @@ a.button:hover {
   color: var(--mac-black);
   background: var(--mac-white);
   font-family: var(--font-ui);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
 }
 
@@ -693,7 +694,7 @@ a.button:hover {
   padding: 10px;
   color: var(--mac-white);
   background: var(--mac-black);
-  font-size: 18px;
+  font-size: 16px;
 }
 
 /* Issue detail window */
@@ -725,7 +726,7 @@ a.button:hover {
   color: var(--mac-black);
   background: var(--mac-white);
   font-family: var(--font-ui);
-  font-size: 18px;
+  font-size: 16px;
   text-decoration: none;
 }
 
@@ -767,11 +768,11 @@ a.button:hover {
 
 .detail-heading > p {
   color: var(--mac-black);
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .fingerprint {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .detail-facts {
@@ -792,14 +793,14 @@ a.button:hover {
 
 .detail-facts dt {
   color: var(--mac-black);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
   letter-spacing: 0;
 }
 
 .detail-facts dd {
   color: var(--mac-black);
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .resolve-panel,
@@ -821,7 +822,7 @@ a.button:hover {
 .resolve-panel p,
 .resolved-panel p {
   color: var(--mac-black);
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .resolved-panel {
@@ -857,7 +858,7 @@ a.button:hover {
 .evidence-panel pre {
   color: var(--mac-white);
   background: var(--mac-black);
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1.7;
 }
 
@@ -879,17 +880,17 @@ a.button:hover {
 
 .sample-list dt {
   color: var(--mac-black);
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .sample-list dd {
   color: var(--mac-black);
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .release-list code,
 .release-list strong {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .breadcrumbs-panel {
@@ -909,10 +910,10 @@ a.button:hover {
 .breadcrumb-list time,
 .breadcrumb-level,
 .breadcrumb-list strong {
-  font-size: 18px;
+  font-size: 16px;
 }
 .breadcrumb-list p {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 /* Technical text uses a crisp native monospace so dense context stays readable. */
@@ -930,7 +931,7 @@ a.button:hover {
 .breadcrumb-list strong,
 .key-reveal code,
 .issue-table td.mono {
-  font-size: 17px;
+  font-size: 15px;
 }
 
 @media (max-width: 900px) {
@@ -1021,7 +1022,7 @@ a.button:hover {
 
   .brand-link {
     padding-inline: 9px;
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .header-state {
@@ -1049,7 +1050,7 @@ a.button:hover {
   }
 
   .status-tab {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .issue-table-wrap {
@@ -1080,10 +1081,14 @@ a.button:hover {
     align-items: flex-start;
   }
 
+  .issue-link strong {
+    font-size: 20px;
+  }
+
   .issue-link small {
     display: -webkit-box;
     overflow: hidden;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1.35;
     white-space: normal;
     -webkit-box-orient: vertical;
@@ -1093,7 +1098,7 @@ a.button:hover {
   .issue-table td::before {
     color: var(--mac-black);
     font-family: var(--font-display);
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 400;
     letter-spacing: 0;
   }

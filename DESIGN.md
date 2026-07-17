@@ -25,7 +25,7 @@ First glance shows the ordered issue queue and occurrence totals. Second glance 
 
 ## Tokens and craft
 
-- **Type:** System.css Chicago/Chicago_12 for interface and hierarchy; native SF Mono/Menlo/Consolas for legible fingerprints, releases, timestamps, and stack traces. The interface uses an 18px minimum for bitmap UI text, with dense technical text at 16–17px.
+- **Type:** System.css Chicago/Chicago_12 for interface and hierarchy; native SF Mono/Menlo/Consolas for fingerprints, releases, timestamps, and stack traces. Controls and body copy use 16px; issue titles use 22px desktop/20px mobile; supporting technical descriptions use 14–15px so titles remain dominant.
 - **Color:** Strict white, black, and functional grays. State remains understandable through labels, icons, borders, fill, and hatch patterns rather than color alone.
 - **Geometry:** Square corners, two-pixel borders, double rules, 22px checkerboard desktop rhythm, and 2–3px offset shadows.
 - **Motion:** 80ms stepped color/shadow feedback only. No hover translation; reduced motion removes non-essential interpolation.
