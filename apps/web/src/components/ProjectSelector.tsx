@@ -1,7 +1,6 @@
 "use client";
 
 import type { IssueStatus, ProjectSummary } from "@kenkaiiii/error-mom-protocol";
-import { ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export function ProjectSelector({
@@ -40,7 +39,6 @@ export function ProjectSelector({
             </option>
           ))}
         </select>
-        <ChevronDown aria-hidden="true" size={17} />
       </div>
     </div>
   );

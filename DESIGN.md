@@ -12,25 +12,26 @@
 
 ## Evidence
 
-- **Sentry:** Aligned because issue triage depends on stable project context, grouped failures, and stack evidence.
-- **Airtable:** Aligned because dense rows need strong key lines, predictable columns, and fast filtering.
-- **Miro:** Contrast because freeform spatial composition would weaken scanning and issue comparison.
-- **Langfuse:** Product reference for self-hosted observability and agent-readable operational data, not a visual template.
+- **System.css:** User-selected primary visual source. Its classic Macintosh windows, Chicago/Geneva typography, monochrome palette, striped title bars, hard borders, checkerboard desktop, native controls, and offset shadows define the app-wide material system.
+- **Sentry:** Structural alignment only: stable project context, grouped failures, and stack evidence remain visible inside the new Macintosh treatment.
+- **Airtable:** Structural alignment only: dense rows keep predictable columns and fast filtering.
+- **Miro:** Contrast because freeform spatial composition would weaken incident scanning and does not fit System.css window conventions.
 
 ## Thesis
 
-Error Mom feels like a calm incident desk: warm paper surfaces, ink-forward typography, a single coral incident accent, and a left project rail that keeps scope visible. The memorable device is the issue pulse, a narrow severity rail tied directly to issue state rather than decoration.
+Error Mom is a classic Macintosh incident workstation. Every route is a black-and-white System.css window on a checkerboard desktop; striped title bars, hard two-pixel borders, offset shadows, Chicago controls, and Monaco evidence replace the previous warm SaaS styling.
 
-First glance shows open quantity and the ordered issue queue. Second glance exposes release, environment, first/last seen, and culprit. The primary action is opening an issue; resolution appears only inside issue detail.
+First glance shows the ordered issue queue and occurrence totals. Second glance exposes project, status, quantity, recency, releases, and stack evidence. Project selection stays in one compact control; issue opening remains the primary action.
 
 ## Tokens and craft
 
-- **Type:** Manrope for interface hierarchy; IBM Plex Mono for fingerprints, releases, timestamps, and stack traces.
-- **Color:** Warm neutral canvas and surfaces; coral for open/regressed incidents; green for resolved; blue for focus and links.
-- **Geometry:** 4px base rhythm, 44px controls, 12px surface radius, 1px separators, shared 24px content insets.
-- **Motion:** 160ms color/border transitions only. No hover translation. Reduced motion removes non-essential interpolation.
-- **Icons:** Lucide only, with visible labels for unfamiliar actions.
-- **Responsive:** Desktop keeps project rail and issue table. Narrow layouts turn the rail into a horizontal project scope list and each table row into a labeled issue block.
+- **Type:** System.css Chicago/Chicago_12 for interface and hierarchy; Monaco for fingerprints, releases, timestamps, and stack traces.
+- **Color:** Strict white, black, and functional grays. State remains understandable through labels, icons, borders, fill, and hatch patterns rather than color alone.
+- **Geometry:** Square corners, two-pixel borders, double rules, 22px checkerboard desktop rhythm, and 2–3px offset shadows.
+- **Motion:** 80ms stepped color/shadow feedback only. No hover translation; reduced motion removes non-essential interpolation.
+- **Controls:** System.css is imported from `@sakun/system.css`; local overrides adapt its buttons, inputs, selects, scrollbars, title bars, dialogs, and fonts to Error Mom components.
+- **Icons:** Lucide remains only for functional labels already present; the select uses System.css's native asset and Error Mom has no decorative logo.
+- **Responsive:** Desktop keeps a sidebar and issue table inside one Macintosh window. Narrow layouts stack project controls and turn table rows into bordered labeled records without losing selected scope.
 
 ## Core states
 
@@ -51,9 +52,9 @@ First glance shows open quantity and the ordered issue queue. Second glance expo
 
 ## Rendered review
 
-Final login captures: 1440×960 desktop, 390×844 mobile, and invalid-token recovery. The requested decorative hero logo, supporting paragraph, bullets, and panel subheading were removed; the remaining hero stays at two lines on both captured viewports.
+System.css captures cover the login window, seeded dashboard, issue detail, desktop 1440×960, and mobile 390×844. The two-line hero, project dropdown, modal workflow, grouped fixtures, and renamed Reopened state remain intact.
 
 - **Score: 22/24.** Brief specificity 2, hierarchy 2, composition 2, consistency 2, typography 2, material logic 2, state completeness 2, responsive behavior 2, accessibility 1, motion 2, authenticity 2, distinctiveness 1.
-- **Verified:** Desktop/mobile rendering, two-line hero, 44px controls, native form labels, visible error recovery, responsive reflow, reduced-motion CSS, forced-colors CSS, source-level landmarks, production build, and TypeScript checks.
-- **Unverified:** Automated accessibility scan, keyboard-only traversal, 200% zoom, and rendered dashboard data states. Local PostgreSQL integration could not run because Docker was unavailable; CI runs the integration test against PostgreSQL 17.
-- **Weakest revision:** Accessibility/state feedback was improved by preserving the entered token, rendering a live error message, retaining visible labels, and keeping the primary action in the first mobile viewport.
+- **Verified:** Desktop/mobile rendering, login, dashboard, detail evidence, responsive card reflow, visible labels, monochrome state differentiation, reduced-motion CSS, forced-colors CSS, production build, TypeScript checks, and PostgreSQL-backed seeded data.
+- **Unverified:** Automated accessibility scan, keyboard-only traversal, and 200% zoom.
+- **Weakest revision:** Secondary Monaco evidence was enlarged after rendered critique while preserving the System.css density and hierarchy.

@@ -25,6 +25,9 @@ importers:
       "@kenkaiiii/error-mom-protocol":
         specifier: workspace:*
         version: link:../../packages/protocol
+      "@sakun/system.css":
+        specifier: 0.1.11
+        version: 0.1.11
       lucide-react:
         specifier: ^1.25.0
         version: 1.25.0(react@19.2.7)
@@ -1296,6 +1299,12 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  "@sakun/system.css@0.1.11":
+    resolution:
+      {
+        integrity: sha512-Zpl6Uoq7J3A/77knLBqgcdAcmyeZo38O7WKJMT1KVIxCVzSDulJnSKWNXF/7EHUXCTjYuOWE9D5DkxmJe533tg==,
+      }
+
   "@standard-schema/spec@1.1.0":
     resolution:
       {
@@ -1645,6 +1654,12 @@ packages:
       }
     engines: { node: ">=8" }
 
+  draggabilly@3.0.0:
+    resolution:
+      {
+        integrity: sha512-aEs+B6prbMZQMxc9lgTpCBfyCUhRur/VFucHhIOvlvvdARTj7TcDmX/cdOUtqbjJJUh7+agyJXR5Z6IFe1MxwQ==,
+      }
+
   dunder-proto@1.0.1:
     resolution:
       {
@@ -1726,6 +1741,12 @@ packages:
         integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==,
       }
     engines: { node: ">= 0.6" }
+
+  ev-emitter@2.1.2:
+    resolution:
+      {
+        integrity: sha512-jQ5Ql18hdCQ4qS+RCrbLfz1n+Pags27q5TwMKvZyhp5hh2UULUYZUy1keqj6k6SYsdqIYjnmz7xyyEY0V67B8Q==,
+      }
 
   eventsource-parser@3.1.0:
     resolution:
@@ -1842,6 +1863,12 @@ packages:
         integrity: sha512-sTSfBjoXBp89JvIKIefqw7U2CCebsc74kiY6awiGogKtoSGbgjYE/G/+l9sF3MWFPNc9IcoOC4ODfKHfxFmp0g==,
       }
     engines: { node: ">= 0.4" }
+
+  get-size@3.0.0:
+    resolution:
+      {
+        integrity: sha512-Y8aiXLq4leR7807UY0yuKEwif5s3kbVp1nTv+i4jBeoUzByTLKkLWu/HorS6/pB+7gsB0o7OTogC8AoOOeT0Hw==,
+      }
 
   gopd@1.2.0:
     resolution:
@@ -2685,6 +2712,12 @@ packages:
         integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==,
       }
 
+  unidragger@3.0.1:
+    resolution:
+      {
+        integrity: sha512-RngbGSwBFmqGBWjkaH+yB677uzR95blSQyxq6hYbrQCejH3Mx1nm8DVOuh3M9k2fQyTstWUG5qlgCnNqV/9jVw==,
+      }
+
   unpipe@1.0.0:
     resolution:
       {
@@ -3301,6 +3334,10 @@ snapshots:
   "@rollup/rollup-win32-x64-msvc@4.62.2":
     optional: true
 
+  "@sakun/system.css@0.1.11":
+    dependencies:
+      draggabilly: 3.0.0
+
   "@standard-schema/spec@1.1.0": {}
 
   "@swc/helpers@0.5.15":
@@ -3492,6 +3529,11 @@ snapshots:
 
   detect-libc@2.1.2: {}
 
+  draggabilly@3.0.0:
+    dependencies:
+      get-size: 3.0.0
+      unidragger: 3.0.1
+
   dunder-proto@1.0.1:
     dependencies:
       call-bind-apply-helpers: 1.0.2
@@ -3577,6 +3619,8 @@ snapshots:
       "@types/estree": 1.0.9
 
   etag@1.8.1: {}
+
+  ev-emitter@2.1.2: {}
 
   eventsource-parser@3.1.0: {}
 
@@ -3678,6 +3722,8 @@ snapshots:
     dependencies:
       dunder-proto: 1.0.1
       es-object-atoms: 1.1.2
+
+  get-size@3.0.0: {}
 
   gopd@1.2.0: {}
 
@@ -4190,6 +4236,10 @@ snapshots:
   ufo@1.6.4: {}
 
   undici-types@7.18.2: {}
+
+  unidragger@3.0.1:
+    dependencies:
+      ev-emitter: 2.1.2
 
   unpipe@1.0.0: {}
 
