@@ -24,7 +24,7 @@
   --radius: 0;
   --font-display: Chicago, Chicago_12, Geneva_9, sans-serif;
   --font-ui: Chicago_12, Geneva_9, Chicago, sans-serif;
-  --font-mono: Monaco, monospace;
+  --font-mono: "SFMono-Regular", Menlo, Consolas, monospace;
   --ease: steps(2, end);
 }
 
@@ -199,7 +199,7 @@ a.button:hover {
   margin-block-end: 5px;
   color: var(--mac-black);
   font-family: var(--font-ui);
-  font-size: 16px;
+  font-size: 18px;
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -335,7 +335,7 @@ a.button:hover {
   padding: 2px 10px;
   color: var(--mac-black);
   background: var(--mac-white);
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 400;
 }
 
@@ -348,7 +348,7 @@ a.button:hover {
 .app-header .button {
   min-height: 30px;
   padding-inline: 10px;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .project-rail {
@@ -431,7 +431,7 @@ a.button:hover {
 .queue-metrics dt {
   color: var(--mac-black);
   font-family: var(--font-ui);
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 400;
   letter-spacing: 0;
 }
@@ -483,9 +483,29 @@ a.button:hover {
   color: var(--mac-black);
   background: var(--mac-light);
   font-family: var(--font-display);
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 400;
   letter-spacing: 0;
+}
+
+.issue-table th:first-child {
+  width: 43%;
+}
+
+.issue-table th:nth-child(2) {
+  width: 14%;
+}
+
+.issue-table th:nth-child(3) {
+  width: 13%;
+}
+
+.issue-table th:nth-child(4) {
+  width: 9%;
+}
+
+.issue-table th:nth-child(5) {
+  width: 21%;
 }
 
 .issue-table td {
@@ -532,10 +552,11 @@ a.button:hover {
 .issue-link small {
   color: var(--mac-black);
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 18px;
 }
 .table-time {
-  font-size: 13px;
+  font-size: 18px;
+  white-space: nowrap;
 }
 
 .issue-link svg {
@@ -555,7 +576,7 @@ a.button:hover {
   color: var(--mac-black);
   background: var(--mac-white);
   font-family: var(--font-ui);
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 400;
 }
 
@@ -672,7 +693,7 @@ a.button:hover {
   padding: 10px;
   color: var(--mac-white);
   background: var(--mac-black);
-  font-size: 12px;
+  font-size: 18px;
 }
 
 /* Issue detail window */
@@ -704,7 +725,7 @@ a.button:hover {
   color: var(--mac-black);
   background: var(--mac-white);
   font-family: var(--font-ui);
-  font-size: 16px;
+  font-size: 18px;
   text-decoration: none;
 }
 
@@ -746,11 +767,11 @@ a.button:hover {
 
 .detail-heading > p {
   color: var(--mac-black);
-  font-size: 15px;
+  font-size: 18px;
 }
 
 .fingerprint {
-  font-size: 13px;
+  font-size: 18px;
 }
 
 .detail-facts {
@@ -771,14 +792,14 @@ a.button:hover {
 
 .detail-facts dt {
   color: var(--mac-black);
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 400;
   letter-spacing: 0;
 }
 
 .detail-facts dd {
   color: var(--mac-black);
-  font-size: 14px;
+  font-size: 18px;
 }
 
 .resolve-panel,
@@ -800,7 +821,7 @@ a.button:hover {
 .resolve-panel p,
 .resolved-panel p {
   color: var(--mac-black);
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .resolved-panel {
@@ -836,7 +857,7 @@ a.button:hover {
 .evidence-panel pre {
   color: var(--mac-white);
   background: var(--mac-black);
-  font-size: 14px;
+  font-size: 18px;
   line-height: 1.7;
 }
 
@@ -858,17 +879,17 @@ a.button:hover {
 
 .sample-list dt {
   color: var(--mac-black);
-  font-size: 15px;
+  font-size: 18px;
 }
 
 .sample-list dd {
   color: var(--mac-black);
-  font-size: 13px;
+  font-size: 18px;
 }
 
 .release-list code,
 .release-list strong {
-  font-size: 13px;
+  font-size: 18px;
 }
 
 .breadcrumbs-panel {
@@ -888,10 +909,28 @@ a.button:hover {
 .breadcrumb-list time,
 .breadcrumb-level,
 .breadcrumb-list strong {
-  font-size: 13px;
+  font-size: 18px;
 }
 .breadcrumb-list p {
-  font-size: 16px;
+  font-size: 18px;
+}
+
+/* Technical text uses a crisp native monospace so dense context stays readable. */
+.issue-link small,
+.table-time,
+.fingerprint,
+.detail-heading > p,
+.detail-facts dd,
+.evidence-panel pre,
+.sample-list dd,
+.release-list code,
+.release-list strong,
+.breadcrumb-list time,
+.breadcrumb-level,
+.breadcrumb-list strong,
+.key-reveal code,
+.issue-table td.mono {
+  font-size: 17px;
 }
 
 @media (max-width: 900px) {
@@ -1010,7 +1049,7 @@ a.button:hover {
   }
 
   .status-tab {
-    font-size: 15px;
+    font-size: 18px;
   }
 
   .issue-table-wrap {
@@ -1026,13 +1065,35 @@ a.button:hover {
   }
 
   .issue-table td {
+    min-height: 58px;
+    height: auto;
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 12px;
     border-block-start: 1px solid var(--mac-black);
+  }
+
+  .issue-table td:first-child {
+    min-height: 96px;
+  }
+
+  .issue-link {
+    align-items: flex-start;
+  }
+
+  .issue-link small {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 16px;
+    line-height: 1.35;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
   }
 
   .issue-table td::before {
     color: var(--mac-black);
     font-family: var(--font-display);
-    font-size: 13px;
+    font-size: 18px;
     font-weight: 400;
     letter-spacing: 0;
   }

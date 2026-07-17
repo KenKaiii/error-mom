@@ -19,13 +19,13 @@
 
 ## Thesis
 
-Error Mom is a classic Macintosh incident workstation. Every route is a black-and-white System.css window on a checkerboard desktop; striped title bars, hard two-pixel borders, offset shadows, Chicago controls, and Monaco evidence replace the previous warm SaaS styling.
+Error Mom is a classic Macintosh incident workstation. Every route is a black-and-white System.css window on a checkerboard desktop; striped title bars, hard two-pixel borders, offset shadows, Chicago controls, and crisp monospace evidence replace the previous warm SaaS styling.
 
 First glance shows the ordered issue queue and occurrence totals. Second glance exposes project, status, quantity, recency, releases, and stack evidence. Project selection stays in one compact control; issue opening remains the primary action.
 
 ## Tokens and craft
 
-- **Type:** System.css Chicago/Chicago_12 for interface and hierarchy; Monaco for fingerprints, releases, timestamps, and stack traces.
+- **Type:** System.css Chicago/Chicago_12 for interface and hierarchy; native SF Mono/Menlo/Consolas for legible fingerprints, releases, timestamps, and stack traces. The interface uses an 18px minimum for bitmap UI text, with dense technical text at 16–17px.
 - **Color:** Strict white, black, and functional grays. State remains understandable through labels, icons, borders, fill, and hatch patterns rather than color alone.
 - **Geometry:** Square corners, two-pixel borders, double rules, 22px checkerboard desktop rhythm, and 2–3px offset shadows.
 - **Motion:** 80ms stepped color/shadow feedback only. No hover translation; reduced motion removes non-essential interpolation.
@@ -57,4 +57,4 @@ System.css captures cover the login window, seeded dashboard, issue detail, desk
 - **Score: 22/24.** Brief specificity 2, hierarchy 2, composition 2, consistency 2, typography 2, material logic 2, state completeness 2, responsive behavior 2, accessibility 1, motion 2, authenticity 2, distinctiveness 1.
 - **Verified:** Desktop/mobile rendering, login, dashboard, detail evidence, responsive card reflow, visible labels, monochrome state differentiation, reduced-motion CSS, forced-colors CSS, production build, TypeScript checks, and PostgreSQL-backed seeded data.
 - **Unverified:** Automated accessibility scan, keyboard-only traversal, and 200% zoom.
-- **Weakest revision:** Secondary Monaco evidence was enlarged after rendered critique while preserving the System.css density and hierarchy.
+- **Weakest revision:** The bundled bitmap Monaco had a very small visual x-height. Technical text now uses a native monospace stack, and dashboard/card spacing was widened so larger text stays readable without collisions.

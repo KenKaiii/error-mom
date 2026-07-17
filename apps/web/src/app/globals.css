@@ -35,7 +35,7 @@ body {
   color: var(--ink);
   background: var(--canvas);
   font-family: var(--font-sans), Manrope, sans-serif;
-  font-size: 15px;
+  font-size: 18px;
   line-height: 1.5;
   text-rendering: optimizeLegibility;
 }
@@ -167,7 +167,7 @@ input:hover {
 label {
   display: block;
   margin-block-end: 7px;
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 750;
 }
 
@@ -181,7 +181,7 @@ label {
   margin-block-end: 7px;
   color: var(--incident);
   font-family: var(--font-mono), "IBM Plex Mono", monospace;
-  font-size: 12px;
+  font-size: 18px;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -274,7 +274,7 @@ label {
   gap: 8px;
   padding-inline-start: clamp(24px, 4vw, 56px);
   color: var(--success);
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 700;
 }
 
@@ -297,7 +297,7 @@ label {
   padding-inline: 8px;
   color: var(--ink-muted);
   font-family: var(--font-mono), "IBM Plex Mono", monospace;
-  font-size: 11px;
+  font-size: 18px;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -409,7 +409,7 @@ label {
 .key-reveal p {
   margin: 0;
   color: var(--ink-muted);
-  font-size: 13px;
+  font-size: 18px;
 }
 
 .key-reveal code {
@@ -419,7 +419,7 @@ label {
   padding: 12px;
   color: #852a1d;
   background: var(--incident-soft);
-  font-size: 11px;
+  font-size: 18px;
 }
 
 .dashboard-main {
@@ -452,7 +452,7 @@ label {
 
 .queue-metrics dt {
   color: var(--ink-muted);
-  font-size: 11px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -479,7 +479,7 @@ label {
   border-block-end: 3px solid transparent;
   padding: 0 14px;
   color: var(--ink-muted);
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 700;
   text-decoration: none;
   text-transform: capitalize;
@@ -518,7 +518,7 @@ label {
   padding: 0 16px;
   color: var(--ink-muted);
   background: #f0ece4;
-  font-size: 11px;
+  font-size: 18px;
   font-weight: 750;
   letter-spacing: 0.05em;
   text-align: start;
@@ -591,13 +591,13 @@ label {
 
 .issue-link strong {
   margin-block-end: 5px;
-  font-size: 14px;
+  font-size: 18px;
 }
 
 .issue-link small {
   color: var(--ink-muted);
   font-family: var(--font-mono), "IBM Plex Mono", monospace;
-  font-size: 11px;
+  font-size: 18px;
 }
 
 .issue-link svg {
@@ -615,7 +615,7 @@ label {
 }
 
 .table-time {
-  font-size: 11px;
+  font-size: 18px;
 }
 
 .status {
@@ -626,7 +626,7 @@ label {
   border-radius: 999px;
   padding: 4px 8px;
   font-family: var(--font-mono), "IBM Plex Mono", monospace;
-  font-size: 11px;
+  font-size: 18px;
   font-weight: 600;
   text-transform: capitalize;
 }
@@ -706,7 +706,7 @@ label {
 .detail-project {
   color: var(--ink-muted);
   font-family: var(--font-mono), "IBM Plex Mono", monospace;
-  font-size: 12px;
+  font-size: 18px;
 }
 
 .issue-detail {
@@ -737,7 +737,7 @@ label {
 
 .fingerprint {
   color: var(--ink-muted);
-  font-size: 11px;
+  font-size: 18px;
 }
 
 .detail-heading h1 {
@@ -777,7 +777,7 @@ label {
   gap: 7px;
   margin-block-end: 7px;
   color: var(--ink-muted);
-  font-size: 11px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -787,7 +787,7 @@ label {
   margin: 0;
   overflow-wrap: anywhere;
   font-family: var(--font-mono), "IBM Plex Mono", monospace;
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 600;
 }
 
@@ -815,7 +815,7 @@ label {
   max-width: 620px;
   margin: 0;
   color: #6e3931;
-  font-size: 13px;
+  font-size: 18px;
 }
 
 .resolved-panel {
@@ -879,7 +879,7 @@ label {
 .panel-heading > span,
 .panel-heading > svg {
   color: var(--ink-muted);
-  font-size: 12px;
+  font-size: 18px;
 }
 
 .evidence-panel pre {
@@ -889,7 +889,7 @@ label {
   padding: 22px;
   color: #f6f0e6;
   background: #242420;
-  font-size: 12px;
+  font-size: 18px;
   line-height: 1.75;
   tab-size: 2;
   white-space: pre-wrap;
@@ -917,7 +917,7 @@ label {
 
 .sample-sidebar h2 {
   margin-block-end: 15px;
-  font-size: 15px;
+  font-size: 18px;
 }
 
 .sample-list {
@@ -935,14 +935,14 @@ label {
 
 .sample-list dt {
   color: var(--ink-muted);
-  font-size: 12px;
+  font-size: 18px;
 }
 
 .sample-list dd {
   margin: 0;
   overflow-wrap: anywhere;
   font-family: var(--font-mono), "IBM Plex Mono", monospace;
-  font-size: 11px;
+  font-size: 18px;
   font-weight: 600;
   text-align: end;
 }
@@ -957,7 +957,7 @@ label {
 
 .release-list code,
 .release-list strong {
-  font-size: 11px;
+  font-size: 18px;
 }
 
 .breadcrumbs-panel {
@@ -988,7 +988,7 @@ label {
 .breadcrumb-level,
 .breadcrumb-list strong {
   font-family: var(--font-mono), "IBM Plex Mono", monospace;
-  font-size: 11px;
+  font-size: 18px;
 }
 
 .breadcrumb-list time {
@@ -1199,7 +1199,7 @@ label {
   .issue-table td::before {
     content: attr(data-label);
     color: var(--ink-muted);
-    font-size: 10px;
+    font-size: 18px;
     font-weight: 750;
     letter-spacing: 0.04em;
     text-transform: uppercase;
