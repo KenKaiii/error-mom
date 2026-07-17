@@ -142,8 +142,8 @@ input::placeholder {
 
 button.button:hover,
 a.button:hover {
-  color: var(--mac-white);
-  background: var(--mac-black);
+  color: var(--mac-black);
+  background: var(--mac-mid);
   border-color: var(--mac-black);
 }
 
@@ -208,8 +208,8 @@ a.button:hover {
 .login-shell {
   position: relative;
   width: min(940px, calc(100% - 32px));
-  min-height: 520px;
-  margin: max(32px, calc((100vh - 520px) / 2)) auto;
+  min-height: 380px;
+  margin: max(32px, calc((100vh - 380px) / 2)) auto;
   grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
   gap: 0;
   border: 2px solid var(--mac-black);
@@ -250,7 +250,7 @@ a.button:hover {
   display: grid;
   align-items: center;
   border-inline-end: 2px solid var(--mac-black);
-  padding: 48px;
+  padding: 40px;
 }
 
 .login-intro h1 {
@@ -265,10 +265,10 @@ a.button:hover {
 .login-panel {
   min-height: auto;
   justify-content: center;
-  gap: 30px;
+  gap: 24px;
   border: 0;
   border-radius: 0;
-  padding: 42px;
+  padding: 36px;
   background: var(--mac-light);
   box-shadow: none;
 }
@@ -322,8 +322,8 @@ a.button:hover {
 }
 
 .brand-link:hover {
-  color: var(--mac-white);
-  background: var(--mac-black);
+  color: var(--mac-black);
+  background: var(--mac-mid);
 }
 
 .header-state {
@@ -340,9 +340,9 @@ a.button:hover {
 }
 
 .app-header form {
-  margin-inline-end: clamp(14px, 3vw, 36px);
-  padding: 0 0 0 8px;
-  background: var(--mac-white);
+  margin-inline-end: 8px;
+  padding: 0;
+  background: transparent;
 }
 
 .app-header .button {
@@ -384,8 +384,8 @@ a.button:hover {
 }
 
 .select-control select:hover {
-  color: var(--mac-white);
-  background-color: var(--mac-black);
+  color: var(--mac-black);
+  background-color: var(--mac-mid);
   border-color: var(--mac-black);
 }
 
@@ -462,7 +462,12 @@ a.button:hover {
   text-decoration: none;
 }
 
-.status-tab:hover,
+.status-tab:hover {
+  color: var(--mac-black);
+  border-color: var(--mac-black);
+  background: var(--mac-mid);
+}
+
 .status-tab.active {
   color: var(--mac-white);
   border-color: var(--mac-black);
@@ -664,8 +669,8 @@ a.button:hover {
 }
 
 .icon-button:hover {
-  color: var(--mac-white);
-  background: var(--mac-black);
+  color: var(--mac-black);
+  background: var(--mac-mid);
 }
 
 .project-form,
@@ -731,8 +736,8 @@ a.button:hover {
 }
 
 .back-link:hover {
-  color: var(--mac-white);
-  background: var(--mac-black);
+  color: var(--mac-black);
+  background: var(--mac-mid);
 }
 
 .issue-detail {
@@ -856,6 +861,7 @@ a.button:hover {
 }
 
 .evidence-panel pre {
+  min-height: 250px;
   color: var(--mac-white);
   background: var(--mac-black);
   font-size: 16px;
@@ -943,11 +949,11 @@ a.button:hover {
   .login-intro {
     border-inline-end: 0;
     border-block-end: 2px solid var(--mac-black);
-    padding: 44px;
+    padding: 32px 36px;
   }
 
   .login-panel {
-    padding: 38px 44px 44px;
+    padding: 32px 36px 36px;
   }
 
   .dashboard-shell {
@@ -984,7 +990,7 @@ a.button:hover {
 
 @media (max-width: 700px) {
   body {
-    font-size: 17px;
+    font-size: 16px;
   }
 
   .login-shell,
@@ -997,8 +1003,8 @@ a.button:hover {
   }
 
   .login-intro {
-    min-height: 300px;
-    padding: 32px 26px;
+    min-height: 220px;
+    padding: 28px 24px;
   }
 
   .login-intro h1 {
@@ -1006,7 +1012,7 @@ a.button:hover {
   }
 
   .login-panel {
-    padding: 32px 26px;
+    padding: 28px 24px;
   }
 
   .dashboard-shell,

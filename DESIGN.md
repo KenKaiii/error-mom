@@ -28,7 +28,7 @@ First glance shows the ordered issue queue and occurrence totals. Second glance 
 - **Type:** System.css Chicago/Chicago_12 for interface and hierarchy; native SF Mono/Menlo/Consolas for fingerprints, releases, timestamps, and stack traces. Controls and body copy use 16px; issue titles use 22px desktop/20px mobile; supporting technical descriptions use 14–15px so titles remain dominant.
 - **Color:** Strict white, black, and functional grays. State remains understandable through labels, icons, borders, fill, and hatch patterns rather than color alone.
 - **Geometry:** Square corners, two-pixel borders, double rules, 22px checkerboard desktop rhythm, and 2–3px offset shadows.
-- **Motion:** 80ms stepped color/shadow feedback only. No hover translation; reduced motion removes non-essential interpolation.
+- **Motion:** 80ms stepped color/shadow feedback only. Hover uses mid-gray with black text and borders; solid black is reserved for selected/status states. No hover translation; reduced motion removes non-essential interpolation.
 - **Controls:** System.css is imported from `@sakun/system.css`; local overrides adapt its buttons, inputs, selects, scrollbars, title bars, dialogs, and fonts to Error Mom components.
 - **Icons:** Lucide remains only for functional labels already present; the select uses System.css's native asset and Error Mom has no decorative logo.
 - **Responsive:** Desktop keeps a sidebar and issue table inside one Macintosh window. Narrow layouts stack project controls and turn table rows into bordered labeled records without losing selected scope.
@@ -57,4 +57,4 @@ System.css captures cover the login window, seeded dashboard, issue detail, desk
 - **Score: 22/24.** Brief specificity 2, hierarchy 2, composition 2, consistency 2, typography 2, material logic 2, state completeness 2, responsive behavior 2, accessibility 1, motion 2, authenticity 2, distinctiveness 1.
 - **Verified:** Desktop/mobile rendering, login, dashboard, detail evidence, responsive card reflow, visible labels, monochrome state differentiation, reduced-motion CSS, forced-colors CSS, production build, TypeScript checks, and PostgreSQL-backed seeded data.
 - **Unverified:** Automated accessibility scan, keyboard-only traversal, and 200% zoom.
-- **Weakest revision:** The bundled bitmap Monaco had a very small visual x-height. Technical text now uses a native monospace stack, and dashboard/card spacing was widened so larger text stays readable without collisions.
+- **Weakest revision:** A spacing audit removed the sign-out form's blank white wrapper, compacted login framing, and reduced the oversized stack-evidence block while preserving readable density.
