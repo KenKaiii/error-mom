@@ -1,5 +1,5 @@
 import type { IssueStatus } from "@kenkaiiii/error-mom-protocol";
-import { Bot, LogOut, Radio } from "lucide-react";
+import { LogOut, Radio } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { IssueTable } from "@/components/IssueTable";
@@ -40,13 +40,7 @@ export default async function DashboardPage({
     <main className="dashboard-shell">
       <header className="app-header">
         <Link href="/" className="brand-link" aria-label="Error Mom dashboard">
-          <span className="brand-mark" aria-hidden="true">
-            M
-          </span>
-          <span>
-            <strong>Error Mom</strong>
-            <small>Incident desk</small>
-          </span>
+          <strong>Error Mom</strong>
         </Link>
         <div className="header-state" aria-label="Collector status">
           <Radio aria-hidden="true" size={16} />
@@ -87,25 +81,14 @@ export default async function DashboardPage({
           ))}
         </nav>
         <ProjectCreator />
-        <div className="agent-note">
-          <Bot aria-hidden="true" size={18} />
-          <p>
-            Agent API defaults to <strong>unresolved</strong> issues and returns JSON.
-          </p>
-          <code>error-mom issues</code>
-        </div>
       </aside>
 
       <section className="dashboard-main" aria-labelledby="queue-title">
         <div className="queue-header">
-          <div>
-            <p className="section-kicker">{selectedProject?.name ?? "Every project"}</p>
-            <h1 id="queue-title">Issue queue</h1>
-            <p>Grouped production failures ordered by status and recency.</p>
-          </div>
+          <h1 id="queue-title">Issue queue</h1>
           <dl className="queue-metrics">
             <div>
-              <dt>Issues shown</dt>
+              <dt>Issues</dt>
               <dd>{formatQuantity(issues.length)}</dd>
             </div>
             <div>

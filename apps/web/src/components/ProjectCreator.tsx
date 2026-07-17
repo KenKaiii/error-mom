@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { Check, Copy, Plus } from "lucide-react";
+import { useRef, useState, type FormEvent } from "react";
+import { Check, Copy, Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface CreatedProject {
@@ -11,11 +11,23 @@ interface CreatedProject {
 
 export function ProjectCreator() {
   const router = useRouter();
-  const [expanded, setExpanded] = useState(false);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [created, setCreated] = useState<CreatedProject | null>(null);
   const [copied, setCopied] = useState(false);
+
+  function openDialog() {
+    setError("");
+    setCreated(null);
+    setCopied(false);
+    dialogRef.current?.showModal();
+  }
+
+  function closeDialog() {
+    dialogRef.current?.close();
+    setCreated(null);
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,53 +64,58 @@ export function ProjectCreator() {
     window.setTimeout(() => setCopied(false), 2_000);
   }
 
-  if (created) {
-    return (
-      <section className="key-reveal" aria-live="polite">
-        <div>
-          <p className="section-kicker">Save this once</p>
-          <h3>{created.name} is ready</h3>
-          <p>The write-only ingest key cannot be shown again.</p>
-        </div>
-        <code>{created.ingestKey}</code>
-        <button className="button button-secondary" type="button" onClick={copyKey}>
-          {copied ? <Check aria-hidden="true" size={17} /> : <Copy aria-hidden="true" size={17} />}
-          {copied ? "Copied" : "Copy ingest key"}
-        </button>
-      </section>
-    );
-  }
-
-  if (!expanded) {
-    return (
-      <button
-        className="button button-primary project-add"
-        type="button"
-        onClick={() => setExpanded(true)}
-      >
+  return (
+    <>
+      <button className="button button-primary project-add" type="button" onClick={openDialog}>
         <Plus aria-hidden="true" size={17} />
         New project
       </button>
-    );
-  }
+      <dialog ref={dialogRef} className="project-dialog" aria-labelledby="project-dialog-title">
+        <header className="project-dialog-header">
+          <h2 id="project-dialog-title">{created ? `${created.name} is ready` : "New project"}</h2>
+          <button className="icon-button" type="button" onClick={closeDialog} aria-label="Close">
+            <X aria-hidden="true" size={19} />
+          </button>
+        </header>
 
-  return (
-    <form className="project-form" onSubmit={submit}>
-      <label htmlFor="project-name">Project name</label>
-      <input id="project-name" name="name" required minLength={2} maxLength={100} autoFocus />
-      {error ? (
-        <p className="form-error" role="alert">
-          {error}
-        </p>
-      ) : null}
-      <div className="button-row">
-        <button className="button button-primary" type="submit" disabled={pending}>
-          {pending ? "Creating" : "Create project"}
-        </button>
-        <button className="button button-quiet" type="button" onClick={() => setExpanded(false)}>
-          Cancel
-        </button>
-      </div>
-    </form>
+        {created ? (
+          <section className="key-reveal" aria-live="polite">
+            <p>Copy this write-only ingest key now. It will not be shown again.</p>
+            <code>{created.ingestKey}</code>
+            <div className="button-row">
+              <button className="button button-secondary" type="button" onClick={copyKey}>
+                {copied ? (
+                  <Check aria-hidden="true" size={17} />
+                ) : (
+                  <Copy aria-hidden="true" size={17} />
+                )}
+                {copied ? "Copied" : "Copy ingest key"}
+              </button>
+              <button className="button button-primary" type="button" onClick={closeDialog}>
+                Done
+              </button>
+            </div>
+          </section>
+        ) : (
+          <form className="project-form" onSubmit={submit}>
+            <label htmlFor="project-name">Project name</label>
+            <input id="project-name" name="name" required minLength={2} maxLength={100} autoFocus />
+            {error ? (
+              <p className="form-error" role="alert">
+                {error}
+              </p>
+            ) : null}
+            <div className="button-row">
+              <button className="button button-quiet" type="button" onClick={closeDialog}>
+                Cancel
+              </button>
+              <button className="button button-primary" type="submit" disabled={pending}>
+                {pending ? "Creating" : "Create project"}
+              </button>
+            </div>
+          </form>
+        )}
+      </dialog>
+    </>
   );
 }

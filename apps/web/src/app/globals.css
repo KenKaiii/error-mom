@@ -177,20 +177,6 @@ label {
   font-weight: 650;
 }
 
-.brand-mark {
-  width: 42px;
-  height: 42px;
-  flex: 0 0 42px;
-  display: grid;
-  place-items: center;
-  border-radius: 11px 11px 11px 3px;
-  color: #fff;
-  background: var(--incident);
-  font-size: 20px;
-  font-weight: 800;
-  box-shadow: inset 0 -2px 0 rgb(0 0 0 / 12%);
-}
-
 .section-kicker {
   margin-block-end: 7px;
   color: var(--incident);
@@ -278,38 +264,22 @@ label {
   text-decoration: none;
 }
 
-.brand-link .brand-mark {
-  width: 36px;
-  height: 36px;
-  flex-basis: 36px;
-  font-size: 17px;
-}
-
-.brand-link > span:last-child {
-  display: grid;
-}
-
 .brand-link strong {
   line-height: 1.2;
-}
-
-.brand-link small {
-  color: var(--ink-muted);
-  font-size: 11px;
 }
 
 .header-state {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-inline: 24px;
+  padding-inline-start: clamp(24px, 4vw, 56px);
   color: var(--success);
   font-size: 13px;
   font-weight: 700;
 }
 
 .app-header form {
-  padding-inline-end: 12px;
+  padding-inline-end: clamp(24px, 4vw, 56px);
 }
 
 .project-rail {
@@ -380,67 +350,86 @@ label {
   width: 100%;
 }
 
-.project-form,
-.key-reveal {
+.project-dialog {
+  width: min(480px, calc(100% - 32px));
+  max-height: calc(100vh - 32px);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 14px;
+  padding: 0;
+  color: var(--ink);
   background: var(--surface);
+  box-shadow: 0 24px 80px rgb(34 28 20 / 24%);
 }
 
-.project-form .button-row {
+.project-dialog::backdrop {
+  background: rgb(28 28 26 / 48%);
+  backdrop-filter: blur(3px);
+}
+
+.project-dialog-header {
+  min-height: 68px;
   display: flex;
-  gap: 4px;
-  margin-block-start: 12px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-block-end: 1px solid var(--line);
+  padding: 14px 20px;
+}
+
+.project-dialog-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.icon-button {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--ink-muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  color: var(--ink);
+  background: #ebe7df;
+}
+
+.project-form,
+.key-reveal {
+  margin: 0;
+  padding: 20px;
+}
+
+.project-form .button-row,
+.key-reveal .button-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-block-start: 20px;
 }
 
 .key-reveal {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
-.key-reveal h3,
 .key-reveal p {
-  margin-block-end: 5px;
-}
-
-.key-reveal p:last-child {
+  margin: 0;
   color: var(--ink-muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .key-reveal code {
   overflow-wrap: anywhere;
   border: 1px solid #e5b8ae;
   border-radius: var(--radius-sm);
-  padding: 9px;
+  padding: 12px;
   color: #852a1d;
   background: var(--incident-soft);
-  font-size: 11px;
-}
-
-.agent-note {
-  margin-block-start: auto;
-  border-block-start: 1px solid var(--line);
-  padding: 18px 8px 0;
-  color: var(--ink-muted);
-  font-size: 12px;
-}
-
-.agent-note svg {
-  color: var(--focus);
-}
-
-.agent-note p {
-  margin: 7px 0 11px;
-}
-
-.agent-note code {
-  display: block;
-  border-radius: 5px;
-  padding: 7px 8px;
-  color: #f7f4ed;
-  background: #292925;
   font-size: 11px;
 }
 
@@ -458,13 +447,8 @@ label {
 }
 
 .queue-header h1 {
-  margin-block-end: 8px;
-  font-size: clamp(34px, 4vw, 48px);
-}
-
-.queue-header > div > p:last-child {
   margin: 0;
-  color: var(--ink-muted);
+  font-size: clamp(34px, 4vw, 48px);
 }
 
 .queue-metrics {
@@ -1081,13 +1065,10 @@ label {
     min-width: 150px;
   }
 
-  .project-add,
-  .project-form,
-  .key-reveal {
+  .project-add {
     max-width: 420px;
   }
 
-  .agent-note,
   .rail-heading {
     display: none;
   }
@@ -1156,7 +1137,6 @@ label {
     padding-inline: 14px;
   }
 
-  .brand-link small,
   .header-state {
     display: none;
   }
@@ -1315,7 +1295,6 @@ label {
 }
 
 @media (forced-colors: active) {
-  .brand-mark,
   .issue-row,
   .detail-heading {
     forced-color-adjust: auto;

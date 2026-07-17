@@ -13,7 +13,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "pnpm -r test",
-    "db:migrate": "pnpm --filter error-mom-web db:migrate"
+    "db:migrate": "pnpm --filter error-mom-web db:migrate",
+    "db:seed": "pnpm --filter error-mom-web db:seed"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

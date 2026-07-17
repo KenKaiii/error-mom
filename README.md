@@ -12,14 +12,15 @@ Self-hosted error monitoring built for coding agents and humans. One deployment 
 ## Run locally
 
 ```bash
-cp .env.example .env.local
+cp .env.example apps/web/.env.local
 # Replace ERROR_MOM_ADMIN_TOKEN with at least 32 random characters.
 docker compose up -d
 pnpm install
+pnpm db:seed # optional: 3 projects and 9 realistic issues
 pnpm dev
 ```
 
-Open `http://localhost:3000`, enter the admin token, and create a project. The project ingest key is shown once.
+Open `http://localhost:3000` and enter the admin token. Create a project to receive its write-only ingest key once.
 
 ## Deploy to Railway
 
