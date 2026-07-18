@@ -796,7 +796,13 @@ label {
   font-size: 18px;
 }
 
+.evidence-panel {
+  display: flex;
+  flex-direction: column;
+}
+
 .evidence-panel pre {
+  flex: 1;
   min-height: 380px;
   overflow: auto;
   margin: 0;
