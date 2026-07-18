@@ -11,15 +11,19 @@ Self-hosted, agent-first error monitoring. One deployment serves many projects; 
 
 ## Commands
 
+pnpm 10 monorepo, Node >= 22.
+
 ```bash
-pnpm check
-pnpm test
+pnpm check         # builds packages/protocol first, then typechecks all workspaces
+pnpm test          # vitest across workspaces
 pnpm build
-pnpm format:check
-pnpm dev
+pnpm format:check  # prettier
+pnpm dev           # apps/web only
+pnpm db:migrate
+pnpm db:seed
 ```
 
-Set `TEST_DATABASE_URL` to run the PostgreSQL integration test. CI always runs it against PostgreSQL 17.
+Set `TEST_DATABASE_URL` to run the PostgreSQL integration test. CI always runs it against PostgreSQL 17. The web app also needs `DATABASE_URL` and `ERROR_MOM_ADMIN_TOKEN` (32+ chars).
 
 ## Invariants
 

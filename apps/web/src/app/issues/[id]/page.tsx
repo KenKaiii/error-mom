@@ -11,6 +11,13 @@ import { getIssue, listProjects } from "@/lib/issues";
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  if (!(await isPageAuthenticated())) return { title: "Issue" };
+  const { id } = await params;
+  const issue = await getIssue(id);
+  return { title: issue ? issue.title : "Issue not found" };
+}
+
 export default async function IssuePage({ params }: { params: Promise<{ id: string }> }) {
   if (!(await isPageAuthenticated())) redirect("/login");
   const { id } = await params;

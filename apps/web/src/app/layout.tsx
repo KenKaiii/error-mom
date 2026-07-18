@@ -5,7 +5,10 @@ import "./system-theme.css";
 import { SystemSounds } from "@/components/SystemSounds";
 
 export const metadata: Metadata = {
-  title: "Error Mom",
+  title: {
+    default: "Error Mom",
+    template: "%s · Error Mom",
+  },
   description: "Self-hosted error triage for developers and coding agents.",
 };
 

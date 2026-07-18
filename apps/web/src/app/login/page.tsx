@@ -2,6 +2,10 @@ import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/LoginForm";
 import { isPageAuthenticated } from "@/lib/auth";
 
+export const metadata = {
+  title: "Sign in",
+};
+
 export default async function LoginPage() {
   if (await isPageAuthenticated()) redirect("/");
 

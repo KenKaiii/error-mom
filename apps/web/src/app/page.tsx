@@ -10,6 +10,10 @@ import { listIssues, listProjects } from "@/lib/issues";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Issue queue · Error Mom",
+};
+
 const VALID_STATUSES = new Set<IssueStatus | "unresolved" | "all">([
   "unresolved",
   "open",

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="#000000" />
+  <text
+    x="33"
+    y="43.5"
+    text-anchor="middle"
+    font-family="ui-monospace, Menlo, 'Courier New', monospace"
+    font-weight="700"
+    font-size="30"
+    letter-spacing="-1"
+    fill="#ffffff"
+  >EM.</text>
+</svg>

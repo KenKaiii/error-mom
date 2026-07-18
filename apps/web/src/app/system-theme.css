@@ -334,6 +334,7 @@ a.button:hover {
   padding: 2px 10px;
   color: var(--mac-black);
   background: var(--mac-white);
+  outline: 4px solid var(--mac-white);
   font-size: 16px;
   font-weight: 400;
 }
@@ -347,12 +348,19 @@ a.button:hover {
 .app-header .button {
   min-height: 30px;
   padding-inline: 10px;
+  box-shadow: none;
+  outline: 4px solid var(--mac-white);
   font-size: 16px;
   text-decoration: none;
   transition:
     color 140ms ease-out,
     background-color 140ms ease-out,
     border-color 140ms ease-out;
+}
+
+.app-header .button:focus-visible {
+  outline: 2px solid var(--mac-black);
+  outline-offset: 3px;
 }
 
 .project-rail {
@@ -394,7 +402,8 @@ a.button:hover {
 }
 
 .project-add {
-  width: calc(100% - 8px);
+  width: 100%;
+  min-height: 36px;
 }
 
 .dashboard-main {
@@ -529,7 +538,7 @@ a.button:hover {
 }
 
 .issue-row {
-  box-shadow: inset 4px 0 0 var(--mac-black);
+  box-shadow: none;
   transition: background-color 80ms var(--ease);
 }
 
@@ -548,7 +557,14 @@ a.button:hover {
 }
 
 .issue-row-resolved {
-  box-shadow: inset 4px 0 0 var(--mac-mid);
+  box-shadow: none;
+  color: var(--mac-dark);
+}
+
+.issue-row-resolved .issue-link strong,
+.issue-row-resolved .issue-link small,
+.issue-row-resolved td {
+  color: var(--mac-dark);
 }
 
 .issue-link {
@@ -852,8 +868,8 @@ a.button:hover {
 
 .evidence-panel pre {
   min-height: 250px;
-  color: var(--mac-white);
-  background: var(--mac-black);
+  color: var(--mac-black);
+  background: var(--mac-white);
   font-size: 16px;
   line-height: 1.7;
 }
