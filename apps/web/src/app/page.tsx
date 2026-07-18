@@ -1,10 +1,9 @@
 import type { IssueStatus } from "@kenkaiiii/error-mom-protocol";
-import { LogOut, Radio } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AppHeader } from "@/components/AppHeader";
 import { IssueTable } from "@/components/IssueTable";
-import { ProjectCreator } from "@/components/ProjectCreator";
-import { ProjectSelector } from "@/components/ProjectSelector";
+import { ProjectRail } from "@/components/ProjectRail";
 import { isPageAuthenticated } from "@/lib/auth";
 import { formatQuantity } from "@/lib/format";
 import { listIssues, listProjects } from "@/lib/issues";
@@ -39,30 +38,13 @@ export default async function DashboardPage({
 
   return (
     <main className="dashboard-shell">
-      <header className="app-header">
-        <Link href="/" className="brand-link" aria-label="Error Mom dashboard">
-          <strong>Error Mom</strong>
-        </Link>
-        <div className="header-state" aria-label="Collector status">
-          <Radio aria-hidden="true" size={16} />
-          Collector online
-        </div>
-        <form action="/api/auth/logout" method="post">
-          <button className="button button-quiet" type="submit">
-            <LogOut aria-hidden="true" size={17} />
-            Sign out
-          </button>
-        </form>
-      </header>
+      <AppHeader />
 
-      <aside className="project-rail" aria-label="Project scope">
-        <ProjectSelector
-          projects={projects}
-          selectedProjectId={selectedProject?.id ?? ""}
-          status={status}
-        />
-        <ProjectCreator />
-      </aside>
+      <ProjectRail
+        projects={projects}
+        selectedProjectId={selectedProject?.id ?? ""}
+        status={status}
+      />
 
       <section className="dashboard-main" aria-labelledby="queue-title">
         <div className="queue-header">

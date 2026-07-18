@@ -82,10 +82,18 @@ select {
 
 button:focus-visible,
 a:focus-visible,
-input:focus-visible,
-select:focus-visible {
+input:focus-visible {
   outline: 2px solid var(--mac-black);
   outline-offset: 3px;
+}
+
+/* Selects match :focus-visible on mouse click, so an outer outline reads as
+   a stray double border. Invert instead, matching focused inputs. */
+select:focus-visible,
+.select-control select:focus-visible {
+  outline: none;
+  color: var(--mac-white);
+  background-color: var(--mac-black);
 }
 
 label {
@@ -156,41 +164,6 @@ a.button:hover {
   box-shadow: none;
 }
 
-.button-primary,
-.button-success {
-  margin: 4px;
-  color: var(--mac-black);
-  background: var(--mac-white);
-  border-color: var(--mac-black);
-  box-shadow:
-    0 0 0 2px var(--mac-white),
-    0 0 0 4px var(--mac-black);
-}
-
-.button-primary:active,
-.button-success:active {
-  box-shadow: 0 0 0 2px var(--mac-black);
-}
-
-.button-secondary {
-  color: var(--mac-black);
-  background: var(--mac-light);
-  border-color: var(--mac-black);
-}
-
-.button-quiet {
-  color: var(--mac-black);
-  background: var(--mac-white);
-  border-color: transparent;
-  box-shadow: none;
-  text-decoration: underline;
-}
-
-.button-quiet:hover {
-  border-color: var(--mac-black);
-  text-decoration: none;
-}
-
 .form-error {
   margin: 10px 0 0;
   border: 2px solid var(--mac-black);
@@ -242,46 +215,32 @@ a.button:hover {
   white-space: nowrap;
 }
 
+.login-brand {
+  margin-block-end: 14px;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .login-panel {
-  position: relative;
   min-height: auto;
-  justify-content: center;
-  gap: 24px;
+  gap: 0;
   border: 2px solid var(--mac-black);
   border-radius: 0;
-  padding: 64px 36px 36px;
+  padding: 0;
   background: var(--mac-light);
   box-shadow: 3px 3px 0 var(--mac-black);
 }
 
-.login-panel::before {
-  content: "";
-  position: absolute;
-  inset: 5px 5px auto;
-  height: 24px;
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--mac-black) 0,
-    var(--mac-black) 2px,
-    var(--mac-white) 2px,
-    var(--mac-white) 4px
-  );
+.login-panel-body {
+  display: grid;
+  gap: 20px;
+  padding: 28px 36px 36px;
 }
 
-.login-panel::after {
-  content: "Error Mom";
-  position: absolute;
-  inset-block-start: 4px;
-  inset-inline-start: 50%;
-  padding: 2px 12px 4px;
-  color: var(--mac-black);
-  background: var(--mac-white);
-  font-family: var(--font-display);
-  font-size: 20px;
-  translate: -50% 0;
-}
-
-.login-panel h2 {
+.login-panel-lead {
+  margin: 0;
   font-family: var(--font-display);
   font-size: clamp(24px, 2.5vw, 28px);
   white-space: nowrap;
@@ -339,7 +298,7 @@ a.button:hover {
   width: fit-content;
   min-height: 30px;
   gap: 7px;
-  margin-inline-start: clamp(20px, 3vw, 42px);
+  margin-inline-start: clamp(24px, 4vw, 52px);
   border: 2px solid var(--mac-black);
   padding: 2px 10px;
   color: var(--mac-black);
@@ -349,7 +308,7 @@ a.button:hover {
 }
 
 .app-header form {
-  margin-inline-end: 8px;
+  margin-inline-end: clamp(24px, 4vw, 52px);
   padding: 0;
   background: transparent;
 }
@@ -656,6 +615,9 @@ a.button:hover {
 
 .project-dialog-header {
   min-height: 38px;
+  display: grid;
+  grid-template-columns: 25px 1fr 25px;
+  align-items: center;
   border-block-end: 2px solid var(--mac-black);
   padding: 4px 7px;
   background: repeating-linear-gradient(
@@ -668,12 +630,18 @@ a.button:hover {
 }
 
 .project-dialog-header h2 {
-  margin: 0 auto;
+  grid-column: 2;
+  justify-self: center;
+  margin: 0;
   padding: 2px 10px;
   color: var(--mac-black);
   background: var(--mac-white);
   font-family: var(--font-display);
   font-size: 20px;
+}
+
+.project-dialog-header .icon-button {
+  grid-column: 3;
 }
 
 .icon-button {
@@ -721,27 +689,12 @@ a.button:hover {
 }
 
 /* Issue detail window */
-.detail-shell {
-  min-height: calc(100vh - 24px);
-  margin: 12px;
-  border: 2px solid var(--mac-black);
-  background: var(--mac-white);
-  box-shadow: 3px 3px 0 var(--mac-black);
-}
-
-.detail-topbar {
-  min-height: 46px;
+.detail-toolbar {
+  margin-block-end: 22px;
   border-block-end: 2px solid var(--mac-black);
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--mac-white) 0,
-    var(--mac-white) 2px,
-    var(--mac-black) 2px,
-    var(--mac-black) 4px
-  );
+  padding-block-end: 12px;
 }
 
-.back-link,
 .detail-project {
   min-height: 30px;
   border: 2px solid var(--mac-black);
@@ -750,16 +703,12 @@ a.button:hover {
   background: var(--mac-white);
   font-family: var(--font-ui);
   font-size: 16px;
+  font-weight: 400;
   text-decoration: none;
 }
 
-.back-link:hover {
-  color: var(--mac-black);
-  background: var(--mac-mid);
-}
-
 .issue-detail {
-  padding-block: 38px 64px;
+  padding-block: 0 48px;
 }
 
 .detail-heading {
@@ -785,7 +734,7 @@ a.button:hover {
 }
 
 .detail-heading h1 {
-  font-size: clamp(34px, 4vw, 52px);
+  font-size: clamp(24px, 2.5vw, 32px);
   letter-spacing: 0;
 }
 
@@ -826,10 +775,9 @@ a.button:hover {
   font-size: 16px;
 }
 
-.resolve-panel,
 .resolved-panel {
   margin-block: 22px;
-  border: 2px solid var(--mac-black);
+  border: 4px double var(--mac-black);
   border-radius: 0;
   padding: 16px;
   color: var(--mac-black);
@@ -837,20 +785,13 @@ a.button:hover {
   box-shadow: 2px 2px 0 var(--mac-black);
 }
 
-.resolve-panel h2,
 .resolved-panel h2 {
   font-size: 23px;
 }
 
-.resolve-panel p,
 .resolved-panel p {
   color: var(--mac-black);
   font-size: 16px;
-}
-
-.resolved-panel {
-  border-style: double;
-  border-width: 4px;
 }
 
 .evidence-panel,
@@ -972,10 +913,6 @@ a.button:hover {
     padding: 0 8px;
   }
 
-  .login-panel {
-    padding: 64px 36px 36px;
-  }
-
   .dashboard-shell {
     display: block;
   }
@@ -1013,10 +950,6 @@ a.button:hover {
     font-size: 16px;
   }
 
-  .issue-detail {
-    width: calc(100% - 16px);
-  }
-
   .login-shell {
     width: calc(100% - 24px);
     margin: 0 auto;
@@ -1033,12 +966,11 @@ a.button:hover {
     font-size: 36px;
   }
 
-  .login-panel {
-    padding: 60px 24px 28px;
+  .login-panel-body {
+    padding: 24px 24px 28px;
   }
 
-  .dashboard-shell,
-  .detail-shell {
+  .dashboard-shell {
     min-height: calc(100vh - 8px);
     margin: 4px;
     box-shadow: none;
@@ -1058,7 +990,7 @@ a.button:hover {
   }
 
   .app-header form {
-    margin-inline-end: 6px;
+    margin-inline-end: 10px;
   }
 
   .project-rail {
@@ -1129,10 +1061,6 @@ a.button:hover {
     font-size: 16px;
     font-weight: 400;
     letter-spacing: 0;
-  }
-
-  .detail-topbar {
-    min-height: 44px;
   }
 
   .detail-heading {

@@ -66,7 +66,7 @@ export function ProjectCreator() {
 
   return (
     <>
-      <button className="button button-primary project-add" type="button" onClick={openDialog}>
+      <button className="button project-add" type="button" onClick={openDialog}>
         <Plus aria-hidden="true" size={17} />
         New project
       </button>
@@ -83,7 +83,7 @@ export function ProjectCreator() {
             <p>Copy this write-only ingest key now. It will not be shown again.</p>
             <code>{created.ingestKey}</code>
             <div className="button-row">
-              <button className="button button-secondary" type="button" onClick={copyKey}>
+              <button className="button" type="button" onClick={copyKey}>
                 {copied ? (
                   <Check aria-hidden="true" size={17} />
                 ) : (
@@ -91,7 +91,7 @@ export function ProjectCreator() {
                 )}
                 {copied ? "Copied" : "Copy ingest key"}
               </button>
-              <button className="button button-primary" type="button" onClick={closeDialog}>
+              <button className="button" type="button" onClick={closeDialog}>
                 Done
               </button>
             </div>
@@ -106,10 +106,10 @@ export function ProjectCreator() {
               </p>
             ) : null}
             <div className="button-row">
-              <button className="button button-quiet" type="button" onClick={closeDialog}>
+              <button className="button" type="button" onClick={closeDialog}>
                 Cancel
               </button>
-              <button className="button button-primary" type="submit" disabled={pending}>
+              <button className="button" type="submit" disabled={pending}>
                 {pending ? "Creating" : "Create project"}
               </button>
             </div>

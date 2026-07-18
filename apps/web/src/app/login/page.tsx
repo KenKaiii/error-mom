@@ -8,6 +8,7 @@ export default async function LoginPage() {
   return (
     <main className="login-shell">
       <section className="login-intro" aria-labelledby="login-title">
+        <p className="login-brand">Error Mom</p>
         <h1 id="login-title">
           Every error,
           <br />
@@ -15,8 +16,13 @@ export default async function LoginPage() {
         </h1>
       </section>
       <section className="login-panel" aria-label="Sign in">
-        <h2>Enter your admin token</h2>
-        <LoginForm />
+        <header className="project-dialog-header">
+          <h2>Login</h2>
+        </header>
+        <div className="login-panel-body">
+          <p className="login-panel-lead">Enter your admin token</p>
+          <LoginForm />
+        </div>
       </section>
     </main>
   );

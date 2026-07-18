@@ -52,7 +52,7 @@ export function LoginForm() {
           {error}
         </p>
       ) : null}
-      <button className="button button-primary" type="submit" disabled={pending}>
+      <button className="button" type="submit" disabled={pending}>
         {pending ? "Checking token" : "Open incident desk"}
         <ArrowRight aria-hidden="true" size={18} />
       </button>
