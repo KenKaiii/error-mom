@@ -47,9 +47,13 @@ body {
   text-rendering: geometricPrecision;
 }
 
+/* The arrow SVGs are exactly as wide as the 22px scrollbar with their border
+   baked in — any horizontal shift exposes a white gap on the left edge, which
+   severed the scrollbar's left border at the top arrow. Pin them flush left. */
 ::-webkit-scrollbar-button:vertical:start,
 ::-webkit-scrollbar-button:vertical:end {
-  background-position: calc(50% + 1px) center;
+  background-position: left center;
+  background-repeat: no-repeat;
 }
 
 ::selection {
@@ -64,9 +68,9 @@ h3 {
   line-height: 1.05;
   letter-spacing: 0;
 
-  /* Chicago bakes ~0.14em of empty left bearing into its glyphs; pull
+  /* Chicago bakes ~0.12em of empty left bearing into its glyphs; pull
      headings back so title ink aligns flush with sibling containers. */
-  margin-inline-start: -0.14em;
+  margin-inline-start: -0.12em;
 }
 
 code,
@@ -244,7 +248,7 @@ a.button:hover {
 }
 
 .login-panel-lead {
-  margin: 0 0 0 -0.14em;
+  margin: 0 0 0 -0.12em;
   font-family: var(--font-display);
   font-size: clamp(24px, 2.5vw, 28px);
   white-space: nowrap;
@@ -1100,11 +1104,19 @@ a.button:hover {
    containers. Kept last so it wins over per-title margin rules above. */
 .queue-header h1,
 .panel-heading h2,
-.login-intro h1,
 .detail-heading h1,
 .sample-sidebar h2,
 .resolved-panel h2 {
-  margin-inline-start: -0.14em;
+  margin-inline-start: -0.12em;
+}
+
+/* "E" carries less bearing than "I": measured ≈0.08em for these titles. */
+.login-intro h1 {
+  margin-inline-start: -0.083em;
+}
+
+.brand-link strong {
+  margin-inline-start: -0.05em;
 }
 
 /* Centered titles must stay optically centered, not bearing-corrected. */
