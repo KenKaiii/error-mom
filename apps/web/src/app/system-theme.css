@@ -63,6 +63,10 @@ h3 {
   font-family: var(--font-display);
   line-height: 1.05;
   letter-spacing: 0;
+
+  /* Chicago bakes ~0.14em of empty left bearing into its glyphs; pull
+     headings back so title ink aligns flush with sibling containers. */
+  margin-inline-start: -0.14em;
 }
 
 code,
@@ -240,7 +244,7 @@ a.button:hover {
 }
 
 .login-panel-lead {
-  margin: 0;
+  margin: 0 0 0 -0.14em;
   font-family: var(--font-display);
   font-size: clamp(24px, 2.5vw, 28px);
   white-space: nowrap;
@@ -1089,4 +1093,22 @@ a.button:hover {
   .detail-heading {
     forced-color-adjust: auto;
   }
+}
+
+/* Chicago bakes ~0.14em of empty left bearing into its glyphs. Pull
+   left-aligned display titles back so their ink sits flush with sibling
+   containers. Kept last so it wins over per-title margin rules above. */
+.queue-header h1,
+.panel-heading h2,
+.login-intro h1,
+.detail-heading h1,
+.sample-sidebar h2,
+.resolved-panel h2 {
+  margin-inline-start: -0.14em;
+}
+
+/* Centered titles must stay optically centered, not bearing-corrected. */
+.project-dialog-header h2,
+.empty-state h2 {
+  margin-inline-start: 0;
 }
