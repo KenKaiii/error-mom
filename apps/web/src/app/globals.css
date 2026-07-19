@@ -273,6 +273,9 @@ label {
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-sm);
   padding: 8px 38px 8px 11px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   color: var(--ink);
   background: var(--surface-strong);
   font: inherit;
@@ -287,6 +290,15 @@ label {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
+.project-selector-count {
+  margin-block-start: 8px;
+  padding-inline: 8px;
+  color: var(--ink-muted);
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+}
+
 .select-control svg {
   position: absolute;
   inset-block-start: 50%;

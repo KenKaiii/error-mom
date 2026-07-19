@@ -21,7 +21,7 @@ describe.runIf(Boolean(databaseUrl))("issue ingestion with PostgreSQL", () => {
     const { findProjectByIngestKey, getIssue, ingestEvents, listIssues, resolveIssue } =
       await import("./issues");
     const project = await createProject("Video Editor");
-    expect((await findProjectByIngestKey(project.ingestKey))?.id).toBe(project.id);
+    expect((await findProjectByIngestKey(project.ingestKey!))?.id).toBe(project.id);
 
     const first = event("0c80c1f4-84dc-40d2-bdf9-167679238e91", "1.0.0", 42, 12);
     await ingestEvents(project.id, [first, first]);
@@ -136,6 +136,26 @@ describe.runIf(Boolean(databaseUrl))("issue ingestion with PostgreSQL", () => {
     expect(grouped[0]?.quantity).toBe(2);
   });
 
+  it("reuses an existing project instead of creating a slug-suffixed duplicate", async () => {
+    const { createProject } = await import("./projects");
+
+    const original = await createProject("Dup Check");
+    expect(original.existing).toBe(false);
+    expect(original.ingestKey).toBeTruthy();
+
+    // Same name, name that slugifies identically, and explicit slug all
+    // resolve to the original project; no ingest key is re-issued.
+    for (const retry of [
+      await createProject("Dup Check"),
+      await createProject("dup-check"),
+      await createProject("Different Name", "dup-check"),
+    ]) {
+      expect(retry.id).toBe(original.id);
+      expect(retry.existing).toBe(true);
+      expect(retry.ingestKey).toBeUndefined();
+    }
+  });
+
   it("deletes a project and cascades issues, keys, and receipts", async () => {
     const { createProject, deleteProject } = await import("./projects");
     const { findProjectByIngestKey, ingestEvents, listIssues } = await import("./issues");
@@ -148,7 +168,7 @@ describe.runIf(Boolean(databaseUrl))("issue ingestion with PostgreSQL", () => {
     expect(await deleteProject(project.id)).toBe(true);
     expect(await deleteProject(project.id)).toBe(false); // already gone
 
-    expect(await findProjectByIngestKey(project.ingestKey)).toBeNull();
+    expect(await findProjectByIngestKey(project.ingestKey!)).toBeNull();
     expect(await listIssues({ projectId: project.id })).toHaveLength(0);
     const orphans = await database()<Array<{ count: string }>>`
       SELECT count(*) AS count FROM event_receipts WHERE project_id = ${project.id}

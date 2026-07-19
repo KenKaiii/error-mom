@@ -29,8 +29,11 @@ export async function POST(request: NextRequest): Promise<Response> {
     );
   }
   try {
-    const project = await createProject(result.data.name, result.data.slug);
-    return Response.json({ project }, { status: 201 });
+    const { existing, ...project } = await createProject(result.data.name, result.data.slug);
+    // Existing slug: return the original project (200) instead of creating a
+    // duplicate. Its ingest key is hash-only, so no key is included; callers
+    // mint one via POST /api/v1/projects/:id/ingest-keys when needed.
+    return Response.json({ project, existing }, { status: existing ? 200 : 201 });
   } catch (error) {
     return Response.json(
       {

@@ -25,6 +25,18 @@ interface Project {
   ingestKey?: string;
 }
 
+// Mirrors the server's slug normalization so init can find an existing
+// project even when the local name differs only in casing or separators.
+function slugifyName(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 64);
+}
+
 const program = new Command()
   .name("error-mom")
   .description("Query and operate a self-hosted Error Mom incident desk")
@@ -196,10 +208,14 @@ program
     )) as {
       projects: Project[];
     };
+    // Match by name AND slugified name so "gg app" and "gg-app" resolve to
+    // the same project instead of creating a duplicate on re-init.
     let project = options.project
       ? projectResponse.projects.find((candidate) => candidate.slug === options.project)
       : projectResponse.projects.find(
-          (candidate) => candidate.name.toLowerCase() === name.toLowerCase(),
+          (candidate) =>
+            candidate.name.toLowerCase() === name.toLowerCase() ||
+            candidate.slug === slugifyName(name),
         );
     if (!project) {
       const created = (await request(config.server, config.adminToken, "/api/v1/projects", {

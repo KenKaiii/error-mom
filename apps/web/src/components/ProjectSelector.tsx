@@ -14,6 +14,13 @@ export function ProjectSelector({
 }) {
   const router = useRouter();
   const totalOpenIssues = projects.reduce((total, project) => total + project.openIssues, 0);
+  const selectedProject = projects.find((project) => project.id === selectedProjectId);
+  // The number is the unresolved-issue count, not the project count. Label it
+  // outside the select so the closed control never truncates the meaning.
+  const scopeCount = selectedProject ? selectedProject.openIssues : totalOpenIssues;
+  const scopeLabel = selectedProject
+    ? `${scopeCount} unresolved`
+    : `${scopeCount} unresolved in ${projects.length} project${projects.length === 1 ? "" : "s"}`;
 
   function selectProject(projectId: string) {
     const parameters = new URLSearchParams();
@@ -32,14 +39,15 @@ export function ProjectSelector({
           value={selectedProjectId}
           onChange={(event) => selectProject(event.target.value)}
         >
-          <option value="">All projects ({totalOpenIssues})</option>
+          <option value="">All projects</option>
           {projects.map((project) => (
             <option key={project.id} value={project.id}>
-              {project.name} ({project.openIssues})
+              {project.name}
             </option>
           ))}
         </select>
       </div>
+      <p className="project-selector-count">{scopeLabel}</p>
     </div>
   );
 }
