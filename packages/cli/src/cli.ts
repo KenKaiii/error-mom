@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execFileSync } from "node:child_process";
-import { chmod, mkdir, readFile, writeFile, appendFile } from "node:fs/promises";
+import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, join } from "node:path";
@@ -9,7 +9,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-const VERSION = "0.4.0";
+const VERSION = "0.4.1";
 const CONFIG_DIR = join(homedir(), ".error-mom");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
@@ -187,19 +187,15 @@ program
     const framework = detectFramework(packageJson);
     if (!options.skipInstall) installSdk(detectPackageManager(process.cwd()));
     const setupPath = await writeSetup(framework, config.server, project.ingestKey);
-    await writeFile(
-      join(process.cwd(), ".error-mom.json"),
-      `${JSON.stringify({ server: config.server, projectId: project.id, projectName: project.name, framework: framework.id }, null, 2)}\n`,
-    );
-    await appendEnvironment(framework, config.server, project.ingestKey);
     print({
       installed: !options.skipInstall,
       project: { id: project.id, name: project.name, slug: project.slug },
       framework: framework.id,
       setupFile: setupPath,
+      projectKey: project.ingestKey,
       verified: false,
       wiring: framework.wiring,
-      nextAction: `Wire it up: ${framework.wiring} If the app routes caught errors through a central handler or error-broadcast function, call errorMom.captureError(err) inside it — that is where framework-caught and LLM errors surface. For handlers where a framework catches errors itself (queue/cron jobs, webhooks, MCP tools), wrap each with errorMom.wrap(fn, { culprit: "<name>" }). The setup file has the write-only project key baked in so production builds report without any CI configuration. Then run error-mom doctor --project-key <key>.`,
+      nextAction: `Wire it up: ${framework.wiring} If the app routes caught errors through a central handler or error-broadcast function, call errorMom.captureError(err) inside it — that is where framework-caught and LLM errors surface. For handlers where a framework catches errors itself (queue/cron jobs, webhooks, MCP tools), wrap each with errorMom.wrap(fn, { culprit: "<name>" }). The setup file has the write-only project key baked in (safe to commit; ERROR_MOM_* env vars override when set), so production builds report without any configuration. Then run error-mom doctor --project-key ${project.ingestKey}.`,
     });
   });
 
@@ -587,31 +583,6 @@ export const onRequestError: Instrumentation.onRequestError = async (
 };
 `;
   await writeFile(file, contents);
-}
-
-async function appendEnvironment(
-  framework: FrameworkInfo,
-  server: string,
-  key: string,
-): Promise<void> {
-  const prefix =
-    framework.envStyle === "next" ? "NEXT_PUBLIC_" : framework.envStyle === "vite" ? "VITE_" : "";
-  const file = join(process.cwd(), ".env.local");
-  const existing = existsSync(file) ? await readFile(file, "utf8") : "";
-  const lines = [
-    [`${prefix}ERROR_MOM_SERVER`, server],
-    [`${prefix}ERROR_MOM_PROJECT_KEY`, key],
-    [`${prefix}ERROR_MOM_ENVIRONMENT`, "production"],
-  ].filter(([name]) => !existing.includes(`${name}=`));
-  if (lines.length) {
-    await appendFile(
-      file,
-      `${existing && !existing.endsWith("\n") ? "\n" : ""}${lines.map(([name, value]) => `${name}=${value}`).join("\n")}\n`,
-      {
-        mode: 0o600,
-      },
-    );
-  }
 }
 
 function syntheticEvent() {

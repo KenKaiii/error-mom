@@ -144,8 +144,8 @@ My admin token: MY_ADMIN_TOKEN
      errorMom.wrap(handlerFn, { culprit: "<job or route name>" }).
    Failed calls to AI providers (Anthropic, OpenAI, Kimi, GLM, and ~40
    more) are captured and tagged automatically in every covered process.
-5. Prove it works end to end:
-   error-mom doctor --project-key <the key init wrote into the env file>
+5. Prove it works end to end by running the exact doctor command init
+   printed in its nextAction output.
    Success = the response shows "accepted": 1 and "synthetic": 1. Doctor's
    test event is never shown as a real error, so my dashboard stays clean.
 6. Commit the changes and confirm to me it's all connected. The baked
