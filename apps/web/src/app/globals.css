@@ -611,6 +611,58 @@ label {
   background: var(--success-soft);
 }
 
+.status-control {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+
+.status-select select {
+  width: auto;
+  min-height: 40px;
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.status-select-open select {
+  color: #8d291b;
+  background: var(--incident-soft);
+}
+
+.status-select-regressed select {
+  color: #781f13;
+  background: #f5d4cc;
+}
+
+.status-resolve-form {
+  display: grid;
+  gap: 8px;
+  min-width: 210px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  background: var(--surface-strong);
+  box-shadow: var(--shadow);
+}
+
+.status-resolve-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.status-resolve-form label {
+  color: var(--ink-muted);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.status-resolve-error {
+  margin: 0;
+  color: var(--incident);
+  font-size: 16px;
+}
+
 .empty-state {
   min-height: 330px;
   display: grid;

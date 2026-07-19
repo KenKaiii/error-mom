@@ -634,6 +634,33 @@ a.button:hover {
   background: var(--mac-white);
 }
 
+.status-select select {
+  width: auto;
+  min-height: 32px;
+}
+
+.status-select-regressed select {
+  color: var(--mac-white);
+  background-color: var(--mac-black);
+}
+
+.status-select-regressed select:hover {
+  color: var(--mac-white);
+  background-color: var(--mac-dark);
+}
+
+.status-resolve-form {
+  border: 2px solid var(--mac-black);
+  border-radius: 0;
+  background: var(--mac-white);
+  box-shadow: 3px 3px 0 var(--mac-black);
+}
+
+.status-resolve-form label {
+  font-family: var(--font-display);
+  font-size: 15px;
+}
+
 .empty-state {
   min-height: 320px;
   border: 2px solid var(--mac-black);

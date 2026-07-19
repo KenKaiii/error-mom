@@ -4,10 +4,10 @@ Self-hosted, agent-first error monitoring. One deployment serves many projects; 
 
 ## Structure
 
-- `apps/web`: Next.js dashboard and HTTP API backed by PostgreSQL.
-- `packages/protocol`: Zod event schemas and public API types.
-- `packages/sdk`: browser entry point and `./node` entry point.
-- `packages/cli`: JSON CLI plus MCP stdio server.
+- `apps/web` (`error-mom-web`): Next.js dashboard and HTTP API (`/api/v1/*`) backed by PostgreSQL.
+- `packages/protocol` (`@kenkaiiii/error-mom-protocol`): Zod event schemas and public API types. Must be built before dependents typecheck (`pnpm check` handles this).
+- `packages/sdk` (`@kenkaiiii/error-mom`): browser entry point and `./node` entry point.
+- `packages/cli` (bin `error-mom`): JSON CLI plus MCP stdio server (`error-mom mcp`).
 
 ## Commands
 
@@ -24,6 +24,8 @@ pnpm db:seed
 ```
 
 Set `TEST_DATABASE_URL` to run the PostgreSQL integration test. CI always runs it against PostgreSQL 17. The web app also needs `DATABASE_URL` and `ERROR_MOM_ADMIN_TOKEN` (32+ chars).
+
+No migration tool: the full idempotent DDL lives in `apps/web/src/lib/schema.ts`; `pnpm db:migrate` applies it via `ensureSchema()` under an advisory lock. Integration tests in `apps/web` run serially (`fileParallelism: false`) because they share one database.
 
 ## Invariants
 

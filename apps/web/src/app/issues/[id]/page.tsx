@@ -4,7 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { AppHeader } from "@/components/AppHeader";
 import { CopyButton } from "@/components/CopyButton";
 import { ProjectRail } from "@/components/ProjectRail";
-import { StatusBadge } from "@/components/StatusBadge";
+import { StatusMenu } from "@/components/StatusMenu";
 import { isPageAuthenticated } from "@/lib/auth";
 import { formatDate, formatQuantity } from "@/lib/format";
 import { getIssue, listProjects } from "@/lib/issues";
@@ -43,7 +43,11 @@ export default async function IssuePage({ params }: { params: Promise<{ id: stri
         <article className="issue-detail">
           <header className={`detail-heading detail-heading-${issue.status}`}>
             <div className="detail-title-row">
-              <StatusBadge status={issue.status} />
+              <StatusMenu
+                issueId={issue.id}
+                status={issue.status}
+                latestRelease={issue.latestRelease}
+              />
               <span className="mono fingerprint">{issue.fingerprint.slice(0, 12)}</span>
             </div>
             <h1>{issue.title}</h1>

@@ -2,7 +2,7 @@ import type { IssueSummary } from "@kenkaiiii/error-mom-protocol";
 import { ArrowUpRight, Inbox } from "lucide-react";
 import Link from "next/link";
 import { formatDate, formatQuantity } from "@/lib/format";
-import { StatusBadge } from "./StatusBadge";
+import { StatusMenu } from "./StatusMenu";
 
 export function IssueTable({ issues }: { issues: IssueSummary[] }) {
   if (issues.length === 0) {
@@ -46,7 +46,11 @@ export function IssueTable({ issues }: { issues: IssueSummary[] }) {
               </td>
               <td data-label="Project">{issue.projectName}</td>
               <td data-label="Status">
-                <StatusBadge status={issue.status} />
+                <StatusMenu
+                  issueId={issue.id}
+                  status={issue.status}
+                  latestRelease={issue.latestRelease}
+                />
               </td>
               <td data-label="Quantity" className="numeric mono">
                 {formatQuantity(issue.quantity)}
