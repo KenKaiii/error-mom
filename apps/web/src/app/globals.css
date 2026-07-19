@@ -290,23 +290,6 @@ label {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
-.project-selector-count {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-block-start: 8px;
-  padding-inline: 8px;
-  color: var(--ink-muted);
-  font-family: var(--font-mono), "IBM Plex Mono", monospace;
-  font-size: 15px;
-  letter-spacing: 0.04em;
-}
-.project-selector-count-ok {
-  color: var(--success);
-}
-.project-selector-count-ok svg {
-  flex-shrink: 0;
-}
 
 .select-control svg {
   position: absolute;
