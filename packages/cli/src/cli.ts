@@ -8,8 +8,9 @@ import { Command } from "commander";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import { associateMaps } from "./sourcemap-files.js";
 
-const VERSION = "0.6.0";
+const VERSION = "0.7.0";
 const CONFIG_DIR = join(homedir(), ".error-mom");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
@@ -256,14 +257,21 @@ program
   .requiredOption("--project <id-or-slug>", "Project id or slug")
   .action(async (dir: string, options: { release: string; project: string }) => {
     const config = await loadConfig();
-    const mapFiles = await findMapFiles(dir);
-    if (mapFiles.length === 0) {
+    // Frames are matched by the JS file's basename, so each map must be
+    // uploaded under the name of the chunk that references it. Bundlers where
+    // chunk and map names align (vite, esbuild, webpack) work either way, but
+    // Next 16/Turbopack emits maps whose basenames do NOT match their chunks
+    // (chunk 3afd5e.js -> 0mzggd.js.map) — only the sourceMappingURL comment
+    // ties them together. Follow the comment; fall back to name-stripping for
+    // orphan maps (hidden-map builds omit the comment).
+    const associations = await associateMaps(dir);
+    if (associations.length === 0) {
       throw new Error(`No .map files found under ${dir}. Build with source maps enabled first.`);
     }
     const uploaded: string[] = [];
     const skipped: Array<{ file: string; reason: string }> = [];
     const warnings: string[] = [];
-    for (const mapFile of mapFiles) {
+    for (const { mapFile, fileName } of associations) {
       const info = await stat(mapFile);
       if (info.size > 20 * 1024 * 1024) {
         skipped.push({ file: mapFile, reason: "larger than 20 MB" });
@@ -276,8 +284,6 @@ program
         skipped.push({ file: mapFile, reason: "not valid JSON" });
         continue;
       }
-      // "app-abc123.js.map" symbolicates frames from "app-abc123.js".
-      const fileName = basename(mapFile).replace(/\.map$/, "");
       const sourcesContent = (map as { sourcesContent?: unknown[] }).sourcesContent;
       if (!Array.isArray(sourcesContent) || sourcesContent.every((entry) => entry == null)) {
         warnings.push(
@@ -759,25 +765,6 @@ async function releaseMismatchWarning(
   } catch {
     return []; // A warning helper must never fail the upload.
   }
-}
-
-async function findMapFiles(dir: string): Promise<string[]> {
-  const found: string[] = [];
-  let entries;
-  try {
-    entries = await readdir(dir, { withFileTypes: true });
-  } catch {
-    throw new Error(`Cannot read directory ${dir}.`);
-  }
-  for (const entry of entries) {
-    const fullPath = join(dir, entry.name);
-    if (entry.isDirectory() && entry.name !== "node_modules") {
-      found.push(...(await findMapFiles(fullPath)));
-    } else if (entry.isFile() && entry.name.endsWith(".map")) {
-      found.push(fullPath);
-    }
-  }
-  return found.sort();
 }
 
 function normalizeServer(server: string): string {

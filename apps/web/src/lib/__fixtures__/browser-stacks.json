@@ -1,0 +1,20 @@
+{
+  "generatedAt": "2026-07-19T15:23:34.667Z",
+  "bundleName": "corpus-abc123.js",
+  "map": {
+    "version": 3,
+    "sources": [
+      "../../../../../../private/var/folders/77/87sw6h8s28x20c1qqnhcv_040000gn/T/em-browser-corpus-AaFyWg/fixture.js"
+    ],
+    "sourcesContent": [
+      "\nfunction boomBrowserFixture() {\n  throw new TypeError(\"browser corpus exploded\");\n}\nasync function asyncHop() {\n  await Promise.resolve();\n  boomBrowserFixture();\n}\nwindow.__captureStack = async () => {\n  try {\n    await asyncHop();\n  } catch (error) {\n    return error.stack || \"\";\n  }\n  return \"\";\n};\n"
+    ],
+    "mappings": "MACA,SAASA,GAAqB,CAC5B,MAAM,IAAI,UAAU,yBAAyB,CAC/C,CACA,eAAeC,GAAW,CACxB,MAAM,QAAQ,QAAQ,EACtBD,EAAmB,CACrB,CACA,OAAO,eAAiB,SAAY,CAClC,GAAI,CACF,MAAMC,EAAS,CACjB,OAASC,EAAO,CACd,OAAOA,EAAM,OAAS,EACxB,CACA,MAAO,EACT",
+    "names": ["boomBrowserFixture", "asyncHop", "error"]
+  },
+  "stacks": {
+    "chromium": "TypeError: browser corpus exploded\n    at o (http://127.0.0.1:56211/corpus-abc123.js:1:26)\n    at e (http://127.0.0.1:56211/corpus-abc123.js:1:110)\n    at async window.__captureStack (http://127.0.0.1:56211/corpus-abc123.js:1:150)\n    at async <anonymous>:329:30",
+    "firefox": "o@http://127.0.0.1:56211/corpus-abc123.js:1:26\ne@http://127.0.0.1:56211/corpus-abc123.js:1:110\nasync*window.__captureStack@http://127.0.0.1:56211/corpus-abc123.js:1:156\n@debugger eval code line 303 > eval:1:14\nevaluate@debugger eval code:305:16\n@debugger eval code:1:44\n@debugger eval code:1:62\n",
+    "webkit": "o@http://127.0.0.1:56211/corpus-abc123.js:1:39\ne@http://127.0.0.1:56211/corpus-abc123.js:1:111\n@http://127.0.0.1:56211/corpus-abc123.js:1:157\n@"
+  }
+}
