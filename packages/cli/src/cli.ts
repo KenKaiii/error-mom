@@ -9,7 +9,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-const VERSION = "0.1.0";
+const VERSION = "0.1.1";
 const CONFIG_DIR = join(homedir(), ".error-mom");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
@@ -404,7 +404,7 @@ function syntheticEvent() {
     error: {
       name: "ErrorMomDoctor",
       message: "Synthetic setup verification",
-      stack: "ErrorMomDoctor: Synthetic setup verification\\n    at error-mom doctor:1:1",
+      stack: "ErrorMomDoctor: Synthetic setup verification\n    at error-mom doctor:1:1",
     },
     environment: "setup",
     release: VERSION,
