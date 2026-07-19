@@ -49,6 +49,17 @@ export async function createProjectIngestKey(projectId: string): Promise<string 
   return ingestKey;
 }
 
+export async function deleteProject(projectId: string): Promise<boolean> {
+  await ensureSchema();
+  const sql = database();
+  // Schema cascades: ingest keys, receipts, rate limits, issues, samples,
+  // and releases all reference projects(id) ON DELETE CASCADE.
+  const deleted = await sql<Array<{ id: string }>>`
+    DELETE FROM projects WHERE id = ${projectId} RETURNING id
+  `;
+  return deleted.length > 0;
+}
+
 function slugify(value: string): string {
   return value
     .toLowerCase()

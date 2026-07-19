@@ -1,6 +1,6 @@
 {
   "name": "error-mom",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Agent-first CLI and MCP tools for self-hosted Error Mom",
   "type": "module",
   "bin": {

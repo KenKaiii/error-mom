@@ -46,6 +46,26 @@ describe.runIf(Boolean(databaseUrl))("issue ingestion with PostgreSQL", () => {
     expect(regressed?.status).toBe("regressed");
     expect(regressed?.quantity).toBe(4);
   });
+
+  it("deletes a project and cascades issues, keys, and receipts", async () => {
+    const { createProject, deleteProject } = await import("./projects");
+    const { findProjectByIngestKey, ingestEvents, listIssues } = await import("./issues");
+    const { database } = await import("./db");
+
+    const project = await createProject("Doomed Project");
+    await ingestEvents(project.id, [event("d3ad3ea7-0000-4000-8000-000000000001", "1.0.0", 1, 10)]);
+    expect(await listIssues({ projectId: project.id })).toHaveLength(1);
+
+    expect(await deleteProject(project.id)).toBe(true);
+    expect(await deleteProject(project.id)).toBe(false); // already gone
+
+    expect(await findProjectByIngestKey(project.ingestKey)).toBeNull();
+    expect(await listIssues({ projectId: project.id })).toHaveLength(0);
+    const orphans = await database()<Array<{ count: string }>>`
+      SELECT count(*) AS count FROM event_receipts WHERE project_id = ${project.id}
+    `;
+    expect(Number(orphans[0]?.count)).toBe(0);
+  });
 });
 
 function event(eventId: string, release: string, userId: number, line: number): ErrorEvent {

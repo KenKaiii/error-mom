@@ -9,7 +9,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-const VERSION = "0.3.0";
+const VERSION = "0.3.1";
 const CONFIG_DIR = join(homedir(), ".error-mom");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
@@ -103,6 +103,22 @@ program
           method: "PATCH",
           body: { status: "resolved", fixedInRelease: options.release },
         },
+      ),
+    );
+  });
+
+program
+  .command("delete-project")
+  .description("Permanently delete one project and all of its issues and history")
+  .argument("<project-id>")
+  .action(async (projectId: string) => {
+    const config = await loadConfig();
+    print(
+      await request(
+        config.server,
+        config.adminToken,
+        `/api/v1/projects/${encodeURIComponent(projectId)}`,
+        { method: "DELETE" },
       ),
     );
   });
@@ -263,6 +279,23 @@ async function runMcpServer(): Promise<void> {
             method: "PATCH",
             body: { status: "resolved", fixedInRelease },
           },
+        ),
+      ),
+  );
+  server.registerTool(
+    "delete_project",
+    {
+      description:
+        "Permanently delete a project and all of its issues, samples, and history. Irreversible.",
+      inputSchema: { projectId: z.string().min(1) },
+    },
+    async ({ projectId }) =>
+      toolResult(
+        await request(
+          config.server,
+          config.adminToken,
+          `/api/v1/projects/${encodeURIComponent(projectId)}`,
+          { method: "DELETE" },
         ),
       ),
   );
