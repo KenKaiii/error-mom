@@ -353,9 +353,9 @@ a.button:hover {
   font-size: 16px;
   text-decoration: none;
   transition:
-    color 140ms ease-out,
-    background-color 140ms ease-out,
-    border-color 140ms ease-out;
+    color 80ms var(--ease),
+    background-color 80ms var(--ease),
+    border-color 80ms var(--ease);
 }
 
 .app-header .button:focus-visible {
@@ -486,9 +486,9 @@ a.button:hover {
   font-weight: 400;
   text-decoration: none;
   transition:
-    color 70ms ease-out,
-    background-color 70ms ease-out,
-    border-color 70ms ease-out;
+    color 80ms var(--ease),
+    background-color 80ms var(--ease),
+    border-color 80ms var(--ease);
 }
 
 .status-tab:hover {
@@ -1138,6 +1138,13 @@ a.button:hover {
   *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .loading-dots::after {
+    content: "…";
+    animation: none;
   }
 }
 

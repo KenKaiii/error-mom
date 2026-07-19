@@ -54,12 +54,6 @@ export function playClick(): void {
   tone({ frequency: 780, duration: 0.02, at: 0.012, volume: 0.025 });
 }
 
-/** Two-step rising chirp when a dialog window opens. */
-export function playOpen(): void {
-  tone({ frequency: 620, duration: 0.05, volume: 0.04 });
-  tone({ frequency: 930, duration: 0.06, at: 0.055, volume: 0.04 });
-}
-
 /** Classic single error beep for alerts. */
 export function playBeep(): void {
   tone({ frequency: 660, duration: 0.18, volume: 0.055 });

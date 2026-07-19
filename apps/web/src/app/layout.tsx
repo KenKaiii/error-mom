@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "@sakun/system.css/dist/system.css";
 import "./globals.css";
 import "./system-theme.css";
+import { MenuFlash } from "@/components/MenuFlash";
 import { SystemSounds } from "@/components/SystemSounds";
 
 export const metadata: Metadata = {
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en">
       <body>
         <SystemSounds />
+        <MenuFlash />
         {children}
       </body>
     </html>

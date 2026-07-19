@@ -1167,12 +1167,125 @@ label {
   }
 }
 
+/* Route loading: a "Please wait" window with the classic wristwatch.
+   The watch hand sweeps in hard 30-degree steps and the ellipsis types
+   itself one period at a time; nothing tweens. */
+.loading-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  cursor: wait;
+}
+
+.loading-window {
+  width: min(400px, calc(100% - 32px));
+}
+
+.loading-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+}
+
+.loading-body p {
+  margin: 0;
+}
+
+.watch-icon {
+  flex: none;
+  color: var(--ink);
+}
+
+.watch-hand {
+  transform-box: view-box;
+  transform-origin: 16px 16px;
+  animation: watch-hand 2.4s steps(12, end) infinite;
+}
+
+@keyframes watch-hand {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-dots {
+  display: inline-block;
+  min-width: 3ch;
+  text-align: left;
+}
+
+.loading-dots::after {
+  content: "";
+  animation: loading-dots 1.2s linear infinite;
+}
+
+@keyframes loading-dots {
+  0%,
+  24% {
+    content: "";
+  }
+
+  25%,
+  49% {
+    content: ".";
+  }
+
+  50%,
+  74% {
+    content: "..";
+  }
+
+  75%,
+  100% {
+    content: "...";
+  }
+}
+
+/* Classic menu-item flash: an activated control blinks inverted three
+   times before the action lands. Hard cuts, no fades. */
+.menu-flash {
+  animation: menu-flash 270ms linear both;
+}
+
+@keyframes menu-flash {
+  0%,
+  15%,
+  33%,
+  48%,
+  66%,
+  81% {
+    color: var(--surface-strong);
+    background-color: var(--ink);
+    border-color: var(--ink);
+  }
+
+  16%,
+  32%,
+  49%,
+  65%,
+  82%,
+  100% {
+    color: var(--ink);
+    background-color: var(--surface-strong);
+    border-color: var(--line-strong);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .loading-dots::after {
+    content: "…";
+    animation: none;
   }
 }
 
