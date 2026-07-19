@@ -1,7 +1,7 @@
 # 👩‍🔧 Error Mom
 
 <p align="center">
-  <img src="docs/icon.png" alt="Error Mom" width="200">
+  <img src="docs/error-mom-icon.png" alt="Error Mom" width="200">
 </p>
 
 <p align="center">
