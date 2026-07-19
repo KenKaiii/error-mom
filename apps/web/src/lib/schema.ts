@@ -15,6 +15,13 @@ CREATE TABLE IF NOT EXISTS project_ingest_keys (
 );
 CREATE INDEX IF NOT EXISTS project_ingest_keys_project_idx ON project_ingest_keys(project_id);
 
+CREATE TABLE IF NOT EXISTS admin_sessions (
+  token_hash text PRIMARY KEY,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  expires_at timestamptz NOT NULL
+);
+CREATE INDEX IF NOT EXISTS admin_sessions_expires_idx ON admin_sessions(expires_at);
+
 CREATE TABLE IF NOT EXISTS event_receipts (
   project_id text NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
   event_id text NOT NULL,

@@ -12,7 +12,7 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> },
 ): Promise<Response> {
-  if (!isApiAuthenticated(request)) return unauthorized();
+  if (!(await isApiAuthenticated(request))) return unauthorized();
   const { id } = await context.params;
   const requestedSamples = Number(request.nextUrl.searchParams.get("samples") ?? 1);
   const sampleLimit = Number.isFinite(requestedSamples) ? requestedSamples : 1;
@@ -30,7 +30,7 @@ export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ id: string }> },
 ): Promise<Response> {
-  if (!isApiAuthenticated(request)) return unauthorized();
+  if (!(await isApiAuthenticated(request))) return unauthorized();
   const result = updateSchema.safeParse(await request.json().catch(() => null));
   if (!result.success) {
     return Response.json(

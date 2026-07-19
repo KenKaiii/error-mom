@@ -6,7 +6,7 @@ export async function POST(
   request: NextRequest,
   context: { params: Promise<{ id: string }> },
 ): Promise<Response> {
-  if (!isApiAuthenticated(request)) return unauthorized();
+  if (!(await isApiAuthenticated(request))) return unauthorized();
   const { id } = await context.params;
   const ingestKey = await createProjectIngestKey(id);
   if (!ingestKey) {

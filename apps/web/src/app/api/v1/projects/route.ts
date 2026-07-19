@@ -10,12 +10,12 @@ const createProjectSchema = z.object({
 });
 
 export async function GET(request: NextRequest): Promise<Response> {
-  if (!isApiAuthenticated(request)) return unauthorized();
+  if (!(await isApiAuthenticated(request))) return unauthorized();
   return Response.json({ projects: await listProjects() });
 }
 
 export async function POST(request: NextRequest): Promise<Response> {
-  if (!isApiAuthenticated(request)) return unauthorized();
+  if (!(await isApiAuthenticated(request))) return unauthorized();
   const result = createProjectSchema.safeParse(await request.json().catch(() => null));
   if (!result.success) {
     return Response.json(

@@ -12,7 +12,7 @@ const STATUSES = new Set<IssueStatus | "unresolved" | "all">([
 ]);
 
 export async function GET(request: NextRequest): Promise<Response> {
-  if (!isApiAuthenticated(request)) return unauthorized();
+  if (!(await isApiAuthenticated(request))) return unauthorized();
   const requestedStatus = request.nextUrl.searchParams.get("status") ?? "unresolved";
   if (!STATUSES.has(requestedStatus as IssueStatus | "unresolved" | "all")) {
     return Response.json(
