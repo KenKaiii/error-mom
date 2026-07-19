@@ -156,6 +156,63 @@ describe.runIf(Boolean(databaseUrl))("issue ingestion with PostgreSQL", () => {
     }
   });
 
+  it("redacts unsafe non-SDK events before fingerprinting and persistence", async () => {
+    const { createProject } = await import("./projects");
+    const { getIssue, ingestEvents, listIssues } = await import("./issues");
+    const project = await createProject("Unsafe Caller");
+    const telegram = ["987654", "MESSAGE_SENTINEL"].join(":");
+    const userinfo = ["stack-user", "STACK_SENTINEL"].join(":");
+    const sentinels = [
+      telegram,
+      userinfo,
+      "TAG_SENTINEL",
+      "CONTEXT_SENTINEL",
+      "URL_SENTINEL",
+      "CULPRIT_SENTINEL",
+      "BREADCRUMB_SENTINEL",
+    ];
+    const unsafeEvent: ErrorEvent = {
+      eventId: "5b1c8e12-0000-4000-8000-000000000099",
+      timestamp: new Date().toISOString(),
+      level: "error",
+      error: {
+        name: "UnsafeRequestError",
+        message: `POST https://api.telegram.org/bot${telegram}/sendMessage returned 500`,
+        stack: `UnsafeRequestError at https://${userinfo}@example.com/jobs/42`,
+      },
+      environment: "test",
+      platform: "external",
+      runtime: "direct API caller",
+      url: "https://example.com/run?access_token=URL_SENTINEL&mode=safe",
+      culprit: "https://discord.com/api/webhooks/123/CULPRIT_SENTINEL",
+      breadcrumbs: [
+        {
+          timestamp: new Date().toISOString(),
+          category: "http",
+          level: "error",
+          message: "POST https://hooks.slack.com/services/T000/B000/BREADCRUMB_SENTINEL failed",
+          data: { status: 500 },
+        },
+      ],
+      tags: { endpoint: "https://example.com/token/TAG_SENTINEL/resource" },
+      context: { callback: "https://example.com/api-key/CONTEXT_SENTINEL/run" },
+    };
+
+    await ingestEvents(project.id, [unsafeEvent]);
+
+    const issues = await listIssues({ projectId: project.id });
+    expect(issues).toHaveLength(1);
+    const detail = await getIssue(issues[0]!.id);
+    expect(detail).not.toBeNull();
+    const persisted = JSON.stringify(detail);
+    for (const sentinel of sentinels) expect(persisted).not.toContain(sentinel);
+    expect(detail?.title).toContain("api.telegram.org/bot[REDACTED]/sendMessage");
+    expect(detail?.culprit).toContain("discord.com/api/webhooks/[REDACTED]/[REDACTED]");
+    expect(detail?.samples[0]?.stack).toContain("example.com/jobs/42");
+    expect(detail?.samples[0]?.tags.endpoint).toContain("/token/[REDACTED]/resource");
+    expect(detail?.samples[0]?.context.callback).toContain("/api-key/[REDACTED]/run");
+    expect(detail?.samples[0]?.breadcrumbs[0]?.message).toContain("/services/[REDACTED]");
+  });
   it("deletes a project and cascades issues, keys, and receipts", async () => {
     const { createProject, deleteProject } = await import("./projects");
     const { findProjectByIngestKey, ingestEvents, listIssues } = await import("./issues");

@@ -4,6 +4,26 @@ const boundedString = z.string().max(10_000);
 const shortString = z.string().max(500);
 const scalar = z.union([z.string().max(2_000), z.number(), z.boolean(), z.null()]);
 
+const URL_USERINFO = /(\b[a-z][a-z\d+.-]*:\/\/)[^\s/?#@]+@/gi;
+const TELEGRAM_BOT_TOKEN = /(\/bot)\d+:[A-Z\d_-]+/gi;
+const DISCORD_WEBHOOK = /(\/api\/webhooks\/)[^/\s?#]+\/[^/\s?#]+/gi;
+const SLACK_WEBHOOK = /(\/services\/)[^/\s?#]+\/[^/\s?#]+\/[^/\s?#]+/gi;
+const LABELED_PATH_CREDENTIAL = /(\/(?:token|access_token|api-key|secret|password)\/)[^/\s?#]+/gi;
+const QUERY_CREDENTIAL =
+  /([?&](?:token|key|secret|password|code|access_token|api[-_]?key)=)[^&#\s]*/gi;
+const EMAIL = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
+
+export function redactStringCredentials(value: string): string {
+  return value
+    .replace(URL_USERINFO, "$1[REDACTED]@")
+    .replace(TELEGRAM_BOT_TOKEN, "$1[REDACTED]")
+    .replace(DISCORD_WEBHOOK, "$1[REDACTED]/[REDACTED]")
+    .replace(SLACK_WEBHOOK, "$1[REDACTED]/[REDACTED]/[REDACTED]")
+    .replace(LABELED_PATH_CREDENTIAL, "$1[REDACTED]")
+    .replace(QUERY_CREDENTIAL, "$1[REDACTED]")
+    .replace(EMAIL, "[REDACTED_EMAIL]");
+}
+
 export const breadcrumbSchema = z.object({
   timestamp: z.string().datetime(),
   category: shortString,

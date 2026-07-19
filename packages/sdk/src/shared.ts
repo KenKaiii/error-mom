@@ -1,12 +1,14 @@
-import type { Breadcrumb, ErrorEvent } from "@kenkaiiii/error-mom-protocol";
+import {
+  redactStringCredentials,
+  type Breadcrumb,
+  type ErrorEvent,
+} from "@kenkaiiii/error-mom-protocol";
 
 export const SDK_NAME = "@kenkaiiii/error-mom";
 export const SDK_VERSION = "0.3.2";
 export const MAX_BREADCRUMBS = 50;
 
 const SECRET_KEY = /authorization|cookie|password|passwd|secret|token|api[-_]?key|session/i;
-const URL_CREDENTIAL = /([?&](?:token|key|secret|password|code)=)[^&\s]*/gi;
-const EMAIL = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
 
 export interface CommonOptions {
   server: string;
@@ -52,7 +54,7 @@ export function wrapFunction<A extends unknown[], R>(
 }
 
 export function redactString(value: string): string {
-  return value.replace(URL_CREDENTIAL, "$1[REDACTED]").replace(EMAIL, "[REDACTED_EMAIL]");
+  return redactStringCredentials(value);
 }
 
 export function sanitize(value: unknown, depth = 0): unknown {
@@ -125,8 +127,8 @@ export function createEvent(
     ...(typeof location !== "undefined" ? { url: redactString(location.href) } : {}),
     ...(captureContext.culprit ? { culprit: redactString(captureContext.culprit) } : {}),
     ...(options.installationId ? { installationId: options.installationId } : {}),
-    breadcrumbs: breadcrumbs.slice(-MAX_BREADCRUMBS),
-    tags: { ...options.tags, ...captureContext.tags },
+    breadcrumbs: sanitize(breadcrumbs.slice(-MAX_BREADCRUMBS)) as Breadcrumb[],
+    tags: sanitize({ ...options.tags, ...captureContext.tags }) as Record<string, string>,
     context: (sanitize(captureContext.context ?? {}) as Record<string, unknown>) ?? {},
   };
 }

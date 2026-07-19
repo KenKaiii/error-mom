@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  createEvent,
   describeFailedRequest,
   providerForUrl,
   redactString,
@@ -24,6 +25,45 @@ describe("SDK redaction", () => {
     expect(redactString("https://app.test/export?token=private&format=mp4")).toBe(
       "https://app.test/export?token=[REDACTED]&format=mp4",
     );
+  });
+
+  it.each([
+    ["telegram", "https://api.telegram.org/bot123456:ABC_def/sendMessage"],
+    ["userinfo", "https://user:sample-pass@example.com/path"],
+    ["labeled path", "https://example.com/token/path-sentinel/resource"],
+    ["discord", "https://discord.com/api/webhooks/123456/discord-sentinel"],
+    ["slack", "https://hooks.slack.com/services/T000/B000/slack-sentinel"],
+  ])("redacts %s URL credentials", (_, value) => {
+    expect(redactString(value)).toContain("[REDACTED]");
+  });
+
+  it("sanitizes tags and breadcrumbs before event creation", () => {
+    const sentinel = "capture-sentinel";
+    const event = createEvent(
+      new Error("capture failed"),
+      {
+        server: "https://errors.example.com",
+        projectKey: "project-key",
+        tags: { endpoint: `https://example.com/secret/${sentinel}` },
+      },
+      [
+        {
+          timestamp: "2026-07-20T00:00:00.000Z",
+          category: "http",
+          level: "error",
+          message: `POST https://example.com/token/${sentinel} failed`,
+          data: { url: `https://example.com/access_token/${sentinel}` },
+        },
+      ],
+      "node",
+      { tags: { webhook: `https://discord.com/api/webhooks/123/${sentinel}` } },
+    );
+
+    const serialized = JSON.stringify(event);
+    expect(serialized).not.toContain(sentinel);
+    expect(event.tags.endpoint).toContain("example.com/secret/[REDACTED]");
+    expect(event.breadcrumbs[0]?.message).toContain("example.com/token/[REDACTED]");
+    expect(event.breadcrumbs[0]?.data?.url).toContain("access_token/[REDACTED]");
   });
 });
 
@@ -69,6 +109,21 @@ describe("failed request policy", () => {
       500,
     );
     expect(failure?.error.name).toBe("AzureOpenaiApiError");
+  });
+
+  it("describes failed credential-bearing requests without leaking the credential", () => {
+    const sentinel = ["123456", "FAILURE_SENTINEL"].join(":");
+    const failure = describeFailedRequest(
+      "POST",
+      `https://api.telegram.org/bot${sentinel}/sendMessage`,
+      500,
+    );
+
+    expect(failure?.error.message).toContain(
+      "POST https://api.telegram.org/bot[REDACTED]/sendMessage",
+    );
+    expect(failure?.error.message).toContain("returned 500");
+    expect(failure?.error.message).not.toContain(sentinel);
   });
 });
 

@@ -1,8 +1,7 @@
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+import { redactStringCredentials } from "@kenkaiiii/error-mom-protocol";
 
 const SECRET_KEY = /authorization|cookie|password|passwd|secret|token|api[-_]?key|session/i;
-const URL_SECRET = /([?&](?:token|key|secret|password|code)=)[^&\s]*/gi;
-const EMAIL = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
 
 export function sha256(value: string): string {
   return createHash("sha256").update(value).digest("hex");
@@ -24,12 +23,7 @@ export function constantTimeEqual(left: string, right: string): boolean {
 
 export function redact(value: unknown, depth = 0): unknown {
   if (depth > 6) return "[TRUNCATED]";
-  if (typeof value === "string") {
-    return value
-      .replace(URL_SECRET, "$1[REDACTED]")
-      .replace(EMAIL, "[REDACTED_EMAIL]")
-      .slice(0, 100_000);
-  }
+  if (typeof value === "string") return redactStringCredentials(value).slice(0, 100_000);
   if (typeof value === "number" || typeof value === "boolean" || value === null) return value;
   if (Array.isArray(value)) return value.slice(0, 100).map((item) => redact(item, depth + 1));
   if (typeof value === "object" && value) {
