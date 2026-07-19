@@ -1,5 +1,6 @@
-import { LogOut, Radio } from "lucide-react";
+import { Radio } from "lucide-react";
 import Link from "next/link";
+import { LogoutButton } from "@/components/LogoutButton";
 
 export function AppHeader() {
   return (
@@ -11,12 +12,7 @@ export function AppHeader() {
         <Radio aria-hidden="true" size={16} />
         Collector online
       </div>
-      <form action="/api/auth/logout" method="post">
-        <button className="button" type="submit">
-          <LogOut aria-hidden="true" size={17} />
-          Sign out
-        </button>
-      </form>
+      <LogoutButton />
     </header>
   );
 }
