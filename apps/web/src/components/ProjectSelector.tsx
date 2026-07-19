@@ -1,6 +1,7 @@
 "use client";
 
 import type { IssueStatus, ProjectSummary } from "@kenkaiiii/error-mom-protocol";
+import { CircleCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export function ProjectSelector({
@@ -18,9 +19,16 @@ export function ProjectSelector({
   // The number is the unresolved-issue count, not the project count. Label it
   // outside the select so the closed control never truncates the meaning.
   const scopeCount = selectedProject ? selectedProject.openIssues : totalOpenIssues;
-  const scopeLabel = selectedProject
-    ? `${scopeCount} unresolved`
-    : `${scopeCount} unresolved in ${projects.length} project${projects.length === 1 ? "" : "s"}`;
+  // Zero unresolved is the goal state, but a bare "0 unresolved" reads as
+  // "nothing is connected". Say it as health: connected and clear.
+  const allClear = scopeCount === 0 && projects.length > 0;
+  const scopeLabel = allClear
+    ? selectedProject
+      ? "All clear"
+      : `All clear \u00b7 ${projects.length} project${projects.length === 1 ? "" : "s"} connected`
+    : selectedProject
+      ? `${scopeCount} unresolved`
+      : `${scopeCount} unresolved in ${projects.length} project${projects.length === 1 ? "" : "s"}`;
 
   function selectProject(projectId: string) {
     const parameters = new URLSearchParams();
@@ -47,7 +55,10 @@ export function ProjectSelector({
           ))}
         </select>
       </div>
-      <p className="project-selector-count">{scopeLabel}</p>
+      <p className={`project-selector-count${allClear ? " project-selector-count-ok" : ""}`}>
+        {allClear && <CircleCheck aria-hidden="true" size={15} />}
+        {scopeLabel}
+      </p>
     </div>
   );
 }
