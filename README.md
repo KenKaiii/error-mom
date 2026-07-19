@@ -42,6 +42,10 @@ Resolving an issue records the release that fixed it. If the same error comes ba
 
 Passwords, tokens, cookies, authorization headers, and API keys are scrubbed twice: in the SDK before sending and in the collector before storing.
 
+### AI provider failures are labeled automatically
+
+A failed call to Anthropic, OpenAI, Kimi, GLM, Qwen, Groq, OpenRouter, or ~40 other AI APIs shows up as its own named issue (like `AnthropicApiError`) tagged with provider and status code. "Anthropic is down" and "my code is broken" never blur together.
+
 ### Tracking can never break your app
 
 Capture never throws into your code. Offline? Browser events queue in local storage, Node events spool to disk, and everything retries later.
@@ -122,15 +126,43 @@ My admin token: MY_ADMIN_TOKEN
    app's very FIRST entry point so even startup crashes get reported. Make
    sure missing env vars just skip tracking instead of crashing the app;
    error tracking must never break the app itself.
-4. Prove it works end to end:
+   (On Next.js apps init also generates instrumentation.ts, which reports
+   server-side errors: API routes, SSR, server actions. Keep it.)
+4. Some errors get caught by frameworks before Error Mom can see them.
+   Find handlers where errors are caught and retried or turned into
+   responses (queue/cron jobs like Inngest, webhook routes, MCP tools) and
+   wrap each one: errorMom.wrap(handlerFn, { culprit: "<job or route name>" }).
+   Failed calls to AI providers (Anthropic, OpenAI, Kimi, GLM, and ~40
+   more) are captured and tagged automatically; no setup needed.
+5. Prove it works end to end:
    error-mom doctor --project-key <the key init wrote into the env file>
    Success = the response shows "accepted": 1 and "synthetic": 1. Doctor's
    test event is never shown as a real error, so my dashboard stays clean.
-5. Check the secret key is NOT in git (it must live in a gitignored env
+6. Check the secret key is NOT in git (it must live in a gitignored env
    file), then commit the changes and confirm to me it's all connected.
 ```
 
 From now on, every crash in that app shows up on your dashboard automatically: grouped, counted, with the story of what happened right before.
+
+<details>
+<summary><strong>Already connected an app before? Prompt to upgrade it</strong></summary>
+
+```text
+Update this app's Error Mom integration to the latest version.
+
+1. Upgrade @kenkaiiii/error-mom to the latest version with this project's
+   package manager, and update the CLI: npm install -g error-mom
+2. If this is a Next.js app, run: error-mom init --skip-install
+   It reuses the existing project and adds instrumentation.ts for
+   server-side error reporting. Do not overwrite an existing setup file's
+   customizations.
+3. Find handlers where a framework catches errors itself (queue/cron jobs,
+   webhook routes, MCP tools) and wrap each with
+   errorMom.wrap(fn, { culprit: "<name>" }).
+4. Verify with error-mom doctor, confirm no secrets entered git, commit.
+```
+
+</details>
 
 ## 🔧 Prompt 3: Get your agent to fix the errors
 
