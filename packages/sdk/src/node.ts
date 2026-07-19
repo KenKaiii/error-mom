@@ -5,9 +5,11 @@ import { join } from "node:path";
 import type { Breadcrumb, ErrorEvent } from "@kenkaiiii/error-mom-protocol";
 import {
   createEvent,
+  describeFailedRequest,
   endpoint,
   MAX_BREADCRUMBS,
   printable,
+  redactString,
   SDK_NAME,
   SDK_VERSION,
   type CaptureContext,
@@ -15,6 +17,7 @@ import {
 } from "./shared.js";
 
 export interface NodeOptions extends CommonOptions {
+  captureFailedRequests?: boolean;
   spoolDirectory?: string;
   flushIntervalMs?: number;
   maxQueueSize?: number;
@@ -42,6 +45,7 @@ class NodeClient implements ErrorMomNode {
   private readonly spoolFile: string;
   private readonly handlers: Array<() => void> = [];
   private flushPromise: Promise<void> | undefined;
+  private nativeFetch?: typeof fetch;
 
   constructor(options: NodeOptions) {
     this.options = {
@@ -55,6 +59,7 @@ class NodeClient implements ErrorMomNode {
     this.operation = this.restoreQueue();
     this.installProcessHandlers();
     this.captureConsole();
+    this.captureFetchFailures();
     this.interval = setInterval(() => void this.flush(), this.options.flushIntervalMs);
     void this.flush();
   }
@@ -97,7 +102,8 @@ class NodeClient implements ErrorMomNode {
     if (this.queue.length === 0) return;
     const batch = this.queue.slice(0, 50);
     try {
-      const response = await fetch(endpoint(this.options.server), {
+      const transport = this.nativeFetch ?? fetch;
+      const response = await transport(endpoint(this.options.server), {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -133,6 +139,29 @@ class NodeClient implements ErrorMomNode {
     process.on("unhandledRejection", onRejection);
     this.handlers.push(() => process.off("uncaughtExceptionMonitor", onUncaught));
     this.handlers.push(() => process.off("unhandledRejection", onRejection));
+  }
+
+  private captureFetchFailures(): void {
+    if (this.options.captureFailedRequests === false || typeof fetch === "undefined") return;
+    const original = fetch.bind(globalThis);
+    this.nativeFetch = original;
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+      if (url.startsWith(this.options.server)) return original(input, init);
+      const method = init?.method ?? (input instanceof Request ? input.method : "GET");
+      try {
+        const response = await original(input, init);
+        const failure = describeFailedRequest(method, url, response.status);
+        if (failure) this.captureError(failure.error, failure.context);
+        return response;
+      } catch (error) {
+        this.captureError(error, { culprit: "fetch", tags: { method, url: redactString(url) } });
+        throw error;
+      }
+    }) as typeof fetch;
+    this.handlers.push(() => {
+      globalThis.fetch = original;
+    });
   }
 
   private captureConsole(): void {

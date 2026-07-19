@@ -1,6 +1,7 @@
 import type { Breadcrumb, ErrorEvent as ErrorMomEvent } from "@kenkaiiii/error-mom-protocol";
 import {
   createEvent,
+  describeFailedRequest,
   endpoint,
   MAX_BREADCRUMBS,
   printable,
@@ -173,15 +174,8 @@ class BrowserClient implements ErrorMomBrowser {
       const method = init?.method ?? (input instanceof Request ? input.method : "GET");
       try {
         const response = await original(input, init);
-        if (response.status >= 500) {
-          this.captureError(
-            new Error(`${method} ${redactString(url)} returned ${response.status}`),
-            {
-              culprit: "fetch",
-              tags: { statusCode: String(response.status), method },
-            },
-          );
-        }
+        const failure = describeFailedRequest(method, url, response.status);
+        if (failure) this.captureError(failure.error, failure.context);
         return response;
       } catch (error) {
         this.captureError(error, { culprit: "fetch", tags: { method, url: redactString(url) } });

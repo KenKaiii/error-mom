@@ -1,7 +1,7 @@
 import type { Breadcrumb, ErrorEvent } from "@kenkaiiii/error-mom-protocol";
 
 export const SDK_NAME = "@kenkaiiii/error-mom";
-export const SDK_VERSION = "0.1.0";
+export const SDK_VERSION = "0.2.0";
 export const MAX_BREADCRUMBS = 50;
 
 const SECRET_KEY = /authorization|cookie|password|passwd|secret|token|api[-_]?key|session/i;
@@ -107,4 +107,74 @@ export function createEvent(
 
 export function endpoint(server: string): string {
   return `${server.replace(/\/$/, "")}/api/v1/events`;
+}
+
+// Known AI/LLM provider hosts. Failed requests to these are captured with a
+// provider tag and a provider-specific error name so "Anthropic 500" groups
+// separately from generic fetch failures — in every app, with zero config.
+const AI_PROVIDERS: Array<[RegExp, string]> = [
+  [/(^|\.)api\.anthropic\.com$/, "anthropic"],
+  [/(^|\.)api\.openai\.com$/, "openai"],
+  [/(^|\.)openai\.azure\.com$/, "azure-openai"],
+  [/(^|\.)generativelanguage\.googleapis\.com$/, "google"],
+  [/(^|\.)aiplatform\.googleapis\.com$/, "google-vertex"],
+  [/(^|\.)bedrock(-runtime)?[.\w-]*\.amazonaws\.com$/, "aws-bedrock"],
+  [/(^|\.)api\.mistral\.ai$/, "mistral"],
+  [/(^|\.)api\.groq\.com$/, "groq"],
+  [/(^|\.)api\.deepseek\.com$/, "deepseek"],
+  [/(^|\.)api\.x\.ai$/, "xai"],
+  [/(^|\.)openrouter\.ai$/, "openrouter"],
+  [/(^|\.)api\.together\.(xyz|ai)$/, "together"],
+  [/(^|\.)api\.fireworks\.ai$/, "fireworks"],
+  [/(^|\.)api\.cohere\.(ai|com)$/, "cohere"],
+  [/(^|\.)api\.perplexity\.ai$/, "perplexity"],
+  [/(^|\.)api\.replicate\.com$/, "replicate"],
+  [/(^|\.)api-inference\.huggingface\.co$/, "huggingface"],
+  [/(^|\.)api\.elevenlabs\.io$/, "elevenlabs"],
+];
+
+export function providerForUrl(url: string): string | undefined {
+  try {
+    const hostname = new URL(url).hostname;
+    for (const [pattern, provider] of AI_PROVIDERS) {
+      if (pattern.test(hostname)) return provider;
+    }
+  } catch {
+    // Relative or malformed URLs cannot belong to a known provider.
+  }
+  return undefined;
+}
+
+export interface FailedRequestCapture {
+  error: Error;
+  context: CaptureContext;
+}
+
+// Shared policy for both runtimes: server errors (>=500) always matter;
+// for known AI providers auth/rate-limit/request failures (4xx) matter too.
+export function describeFailedRequest(
+  method: string,
+  url: string,
+  status: number,
+): FailedRequestCapture | undefined {
+  const provider = providerForUrl(url);
+  const relevant = status >= 500 || (provider !== undefined && status >= 400);
+  if (!relevant) return undefined;
+  const cleanUrl = redactString(url);
+  const error = new Error(`${method} ${cleanUrl} returned ${status}`);
+  if (provider) {
+    const label = provider.charAt(0).toUpperCase() + provider.slice(1);
+    error.name = `${label.replace(/-(\w)/g, (_, c: string) => c.toUpperCase())}ApiError`;
+  }
+  return {
+    error,
+    context: {
+      culprit: "fetch",
+      tags: {
+        statusCode: String(status),
+        method,
+        ...(provider ? { provider } : {}),
+      },
+    },
+  };
 }
