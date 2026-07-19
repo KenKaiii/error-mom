@@ -10,7 +10,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { associateMaps } from "./sourcemap-files.js";
 
-const VERSION = "0.7.0";
+const VERSION = "0.7.1";
 const CONFIG_DIR = join(homedir(), ".error-mom");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 

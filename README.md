@@ -40,7 +40,7 @@ Resolving an issue records the release that fixed it. If the same error comes ba
 
 ### Secrets never land in the database
 
-Passwords, tokens, cookies, authorization headers, and API keys are scrubbed twice: in the SDK before sending and in the collector before storing.
+Passwords, tokens, cookies, authorization headers, API keys, emails, query credentials, URL userinfo, bot tokens, webhook credentials, and labeled credential paths are scrubbed twice: in the SDK before sending and in the collector before storing.
 
 ### AI provider failures are labeled automatically
 
@@ -331,7 +331,7 @@ Events are normalized and fingerprinted from the error type, message shape, and 
 
 - Project ingest keys are write-only, hashed in PostgreSQL, and shown once.
 - The dashboard and read/write agent API use a separate private admin token.
-- Known password, token, cookie, authorization, API-key, URL-secret, and email fields are redacted in both SDK and collector.
+- Secret-keyed fields, emails, query credentials, URL userinfo, Telegram bot tokens, Discord and Slack webhook credentials, and labeled credential paths are redacted in both SDK and collector.
 - Browser ingest allows cross-origin writes because shipped browser keys are public by nature; those keys cannot read or resolve issues.
 - Doctor synthetic events are validated and rate-checked but never persisted as issues.
 
