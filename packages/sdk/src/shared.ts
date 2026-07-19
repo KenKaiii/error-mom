@@ -1,7 +1,7 @@
 import type { Breadcrumb, ErrorEvent } from "@kenkaiiii/error-mom-protocol";
 
 export const SDK_NAME = "@kenkaiiii/error-mom";
-export const SDK_VERSION = "0.2.1";
+export const SDK_VERSION = "0.2.2";
 export const MAX_BREADCRUMBS = 50;
 
 const SECRET_KEY = /authorization|cookie|password|passwd|secret|token|api[-_]?key|session/i;
@@ -130,7 +130,36 @@ const AI_PROVIDERS: Array<[RegExp, string]> = [
   [/(^|\.)api\.perplexity\.ai$/, "perplexity"],
   [/(^|\.)api\.replicate\.com$/, "replicate"],
   [/(^|\.)api-inference\.huggingface\.co$/, "huggingface"],
+  [/(^|\.)router\.huggingface\.co$/, "huggingface"],
   [/(^|\.)api\.elevenlabs\.io$/, "elevenlabs"],
+  [/(^|\.)api\.moonshot\.(ai|cn)$/, "moonshot"],
+  [/(^|\.)api\.kimi\.com$/, "moonshot"],
+  [/(^|\.)api\.z\.ai$/, "zai"],
+  [/(^|\.)open\.bigmodel\.cn$/, "zai"],
+  [/(^|\.)dashscope(-intl)?\.aliyuncs\.com$/, "qwen"],
+  [/(^|\.)api\.minimax(i)?\.(chat|com|io)$/, "minimax"],
+  [/(^|\.)api\.lingyiwanwu\.com$/, "yi"],
+  [/(^|\.)api\.stepfun\.com$/, "stepfun"],
+  [/(^|\.)api\.baichuan-ai\.com$/, "baichuan"],
+  [/(^|\.)api\.siliconflow\.(cn|com)$/, "siliconflow"],
+  [/(^|\.)api\.cerebras\.ai$/, "cerebras"],
+  [/(^|\.)api\.sambanova\.ai$/, "sambanova"],
+  [/(^|\.)api\.deepinfra\.com$/, "deepinfra"],
+  [/(^|\.)api\.novita\.ai$/, "novita"],
+  [/(^|\.)api\.hyperbolic\.xyz$/, "hyperbolic"],
+  [/(^|\.)api\.studio\.nebius\.(ai|com)$/, "nebius"],
+  [/(^|\.)models\.inference\.ai\.azure\.com$/, "github-models"],
+  [/(^|\.)models\.github\.ai$/, "github-models"],
+  [/(^|\.)ai-gateway\.vercel\.sh$/, "vercel-ai-gateway"],
+  [/(^|\.)gateway\.ai\.cloudflare\.com$/, "cloudflare-ai-gateway"],
+  [/(^|\.)api\.voyageai\.com$/, "voyage"],
+  [/(^|\.)api\.jina\.ai$/, "jina"],
+  [/(^|\.)api\.stability\.ai$/, "stability"],
+  [/(^|\.)(queue\.)?fal\.run$/, "fal"],
+  [/(^|\.)api\.assemblyai\.com$/, "assemblyai"],
+  [/(^|\.)api\.deepgram\.com$/, "deepgram"],
+  [/(^|\.)api\.lumalabs\.ai$/, "luma"],
+  [/(^|\.)api\.dev\.runwayml\.com$/, "runway"],
 ];
 
 export function providerForUrl(url: string): string | undefined {

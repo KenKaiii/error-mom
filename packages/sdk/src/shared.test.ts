@@ -65,3 +65,37 @@ describe("failed request policy", () => {
     expect(failure?.error.name).toBe("AzureOpenaiApiError");
   });
 });
+
+describe("extended provider coverage", () => {
+  it.each([
+    ["https://api.moonshot.ai/v1/chat/completions", "moonshot"],
+    ["https://api.moonshot.cn/v1/chat/completions", "moonshot"],
+    ["https://api.z.ai/api/paas/v4/chat/completions", "zai"],
+    ["https://open.bigmodel.cn/api/paas/v4/chat/completions", "zai"],
+    ["https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions", "qwen"],
+    ["https://dashscope-intl.aliyuncs.com/api/v1", "qwen"],
+    ["https://api.minimaxi.com/v1/text/chatcompletion_v2", "minimax"],
+    ["https://api.lingyiwanwu.com/v1/chat/completions", "yi"],
+    ["https://api.stepfun.com/v1/chat/completions", "stepfun"],
+    ["https://api.siliconflow.cn/v1/chat/completions", "siliconflow"],
+    ["https://api.cerebras.ai/v1/chat/completions", "cerebras"],
+    ["https://api.sambanova.ai/v1/chat/completions", "sambanova"],
+    ["https://api.deepinfra.com/v1/openai/chat/completions", "deepinfra"],
+    ["https://models.github.ai/inference/chat/completions", "github-models"],
+    ["https://ai-gateway.vercel.sh/v1/chat/completions", "vercel-ai-gateway"],
+    ["https://gateway.ai.cloudflare.com/v1/acct/gw/openai", "cloudflare-ai-gateway"],
+    ["https://queue.fal.run/fal-ai/flux", "fal"],
+    ["https://api.deepgram.com/v1/listen", "deepgram"],
+  ])("%s -> %s", (url, provider) => {
+    expect(providerForUrl(url)).toBe(provider);
+  });
+
+  it("names GLM/Kimi failures clearly", () => {
+    expect(
+      describeFailedRequest("POST", "https://api.moonshot.ai/v1/chat/completions", 429)?.error.name,
+    ).toBe("MoonshotApiError");
+    expect(
+      describeFailedRequest("POST", "https://open.bigmodel.cn/api/paas/v4/chat", 500)?.error.name,
+    ).toBe("ZaiApiError");
+  });
+});

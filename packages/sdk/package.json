@@ -1,6 +1,6 @@
 {
   "name": "@kenkaiiii/error-mom",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Automatic browser and Node.js error capture for self-hosted Error Mom",
   "type": "module",
   "main": "./dist/index.js",
