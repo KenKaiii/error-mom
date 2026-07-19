@@ -9,7 +9,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-const VERSION = "0.1.1";
+const VERSION = "0.2.0";
 const CONFIG_DIR = join(homedir(), ".error-mom");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
@@ -182,7 +182,10 @@ program
       framework,
       setupFile: setupPath,
       verified: false,
-      nextAction: `Import ${setupPath} from the earliest ${framework} entry point, then run error-mom doctor --project-key <key>.`,
+      nextAction:
+        framework === "next"
+          ? `Import ${setupPath} from the root layout for client errors; instrumentation.ts already reports server errors. For jobs/handlers that catch errors themselves (queues, webhooks, MCP tools), wrap them with errorMom.wrap(fn). Then run error-mom doctor --project-key <key>.`
+          : `Import ${setupPath} from the earliest ${framework} entry point. For code where a framework catches errors itself (job runners, webhooks, MCP tools), wrap handlers with errorMom.wrap(fn). Then run error-mom doctor --project-key <key>.`,
     });
   });
 
@@ -360,6 +363,7 @@ function installSdk(packageManager: "pnpm" | "yarn" | "npm"): void {
 async function writeSetup(framework: "next" | "vite" | "node"): Promise<string> {
   const sourceDirectory = existsSync(join(process.cwd(), "src")) ? "src" : ".";
   const relativePath = join(sourceDirectory, "error-mom.ts");
+  if (framework === "next") await writeNextInstrumentation(sourceDirectory);
   const environment =
     framework === "next"
       ? "process.env.NEXT_PUBLIC_"
@@ -370,6 +374,39 @@ async function writeSetup(framework: "next" | "vite" | "node"): Promise<string> 
   const contents = `${framework === "next" ? '"use client";\n\n' : ""}import { initErrorMom } from "${moduleName}";\n\nconst server = ${environment}ERROR_MOM_SERVER;\nconst projectKey = ${environment}ERROR_MOM_PROJECT_KEY;\nconst release = ${environment}ERROR_MOM_RELEASE;\n\nif (!server || !projectKey) {\n  throw new Error("ERROR_MOM_SERVER and ERROR_MOM_PROJECT_KEY are required");\n}\n\ninitErrorMom({\n  server,\n  projectKey,\n  environment: ${environment}ERROR_MOM_ENVIRONMENT ?? "production",\n  ...(release ? { release } : {}),\n});\n`;
   await writeFile(join(process.cwd(), relativePath), contents);
   return relativePath;
+}
+
+// Next.js catches server-side errors (API routes, SSR, server actions) to
+// render a 500, so they never reach process-level handlers. onRequestError in
+// instrumentation.ts is Next's official reporting hook for exactly this.
+async function writeNextInstrumentation(sourceDirectory: string): Promise<void> {
+  const file = join(process.cwd(), sourceDirectory, "instrumentation.ts");
+  if (existsSync(file)) return; // Never clobber an app's existing instrumentation.
+  const contents = `import type { Instrumentation } from "next";
+
+// Reports server-side errors (API routes, SSR, server actions, middleware)
+// that Next.js catches before they can become uncaught exceptions.
+export const onRequestError: Instrumentation.onRequestError = async (
+  error,
+  request,
+  context,
+) => {
+  if (process.env.NEXT_RUNTIME !== "nodejs") return;
+  const server = process.env.NEXT_PUBLIC_ERROR_MOM_SERVER;
+  const projectKey = process.env.NEXT_PUBLIC_ERROR_MOM_PROJECT_KEY;
+  if (!server || !projectKey) return;
+  const { initErrorMom } = await import("@kenkaiiii/error-mom/node");
+  initErrorMom({
+    server,
+    projectKey,
+    environment: process.env.NEXT_PUBLIC_ERROR_MOM_ENVIRONMENT ?? "production",
+  }).captureError(error, {
+    culprit: \`\${request.method} \${request.path}\`,
+    tags: { routerKind: context.routerKind, routeType: context.routeType, runtime: "server" },
+  });
+};
+`;
+  await writeFile(file, contents);
 }
 
 async function appendEnvironment(

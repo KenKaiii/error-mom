@@ -1,7 +1,7 @@
 import type { Breadcrumb, ErrorEvent } from "@kenkaiiii/error-mom-protocol";
 
 export const SDK_NAME = "@kenkaiiii/error-mom";
-export const SDK_VERSION = "0.2.2";
+export const SDK_VERSION = "0.3.0";
 export const MAX_BREADCRUMBS = 50;
 
 const SECRET_KEY = /authorization|cookie|password|passwd|secret|token|api[-_]?key|session/i;
@@ -23,6 +23,32 @@ export interface CaptureContext {
   culprit?: string;
   tags?: Record<string, string>;
   context?: Record<string, unknown>;
+}
+
+// Frameworks (Next.js, Express, Inngest, MCP servers) catch errors to return
+// a 500 or schedule a retry, so they never become uncaught exceptions. wrap()
+// is the universal escape hatch: report, then rethrow so framework behavior
+// (retries, error responses) is unchanged.
+export function wrapFunction<A extends unknown[], R>(
+  capture: (error: unknown, context?: CaptureContext) => string,
+  fn: (...args: A) => R,
+  context?: CaptureContext,
+): (...args: A) => R {
+  return (...args: A): R => {
+    try {
+      const result = fn(...args);
+      if (result instanceof Promise) {
+        return result.catch((error: unknown) => {
+          capture(error, context);
+          throw error;
+        }) as R;
+      }
+      return result;
+    } catch (error) {
+      capture(error, context);
+      throw error;
+    }
+  };
 }
 
 export function redactString(value: string): string {

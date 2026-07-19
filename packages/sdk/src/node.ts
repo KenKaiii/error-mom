@@ -12,6 +12,7 @@ import {
   redactString,
   SDK_NAME,
   SDK_VERSION,
+  wrapFunction,
   type CaptureContext,
   type CommonOptions,
 } from "./shared.js";
@@ -25,6 +26,7 @@ export interface NodeOptions extends CommonOptions {
 
 export interface ErrorMomNode {
   captureError(error: unknown, context?: CaptureContext): string;
+  wrap<A extends unknown[], R>(fn: (...args: A) => R, context?: CaptureContext): (...args: A) => R;
   addBreadcrumb(breadcrumb: Omit<Breadcrumb, "timestamp"> & { timestamp?: string }): void;
   flush(): Promise<void>;
   dispose(): Promise<void>;
@@ -82,6 +84,10 @@ class NodeClient implements ErrorMomNode {
       .catch(() => undefined);
     void this.flush();
     return event.eventId;
+  }
+
+  wrap<A extends unknown[], R>(fn: (...args: A) => R, context?: CaptureContext): (...args: A) => R {
+    return wrapFunction((error, ctx) => this.captureError(error, ctx), fn, context);
   }
 
   addBreadcrumb(input: Omit<Breadcrumb, "timestamp"> & { timestamp?: string }): void {

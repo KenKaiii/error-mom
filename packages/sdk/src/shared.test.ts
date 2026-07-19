@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { describeFailedRequest, providerForUrl, redactString, sanitize } from "./shared";
+import {
+  describeFailedRequest,
+  providerForUrl,
+  redactString,
+  sanitize,
+  wrapFunction,
+} from "./shared";
 
 describe("SDK redaction", () => {
   it("removes secrets nested inside captured context", () => {
@@ -97,5 +103,45 @@ describe("extended provider coverage", () => {
     expect(
       describeFailedRequest("POST", "https://open.bigmodel.cn/api/paas/v4/chat", 500)?.error.name,
     ).toBe("ZaiApiError");
+  });
+});
+
+describe("wrapFunction", () => {
+  it("captures and rethrows sync errors", () => {
+    const captured: unknown[] = [];
+    const wrapped = wrapFunction(
+      (e) => {
+        captured.push(e);
+        return "id";
+      },
+      () => {
+        throw new Error("sync boom");
+      },
+    );
+    expect(() => wrapped()).toThrow("sync boom");
+    expect(captured).toHaveLength(1);
+  });
+
+  it("captures and rethrows async rejections", async () => {
+    const captured: unknown[] = [];
+    const wrapped = wrapFunction(
+      (e) => {
+        captured.push(e);
+        return "id";
+      },
+      async () => {
+        throw new Error("async boom");
+      },
+    );
+    await expect(wrapped()).rejects.toThrow("async boom");
+    expect(captured).toHaveLength(1);
+  });
+
+  it("passes through arguments and return values untouched", async () => {
+    const wrapped = wrapFunction(
+      () => "id",
+      async (a: number, b: number) => a + b,
+    );
+    await expect(wrapped(2, 3)).resolves.toBe(5);
   });
 });
