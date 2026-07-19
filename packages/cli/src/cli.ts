@@ -9,7 +9,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-const VERSION = "0.3.1";
+const VERSION = "0.4.0";
 const CONFIG_DIR = join(homedir(), ".error-mom");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
@@ -186,7 +186,7 @@ program
 
     const framework = detectFramework(packageJson);
     if (!options.skipInstall) installSdk(detectPackageManager(process.cwd()));
-    const setupPath = await writeSetup(framework);
+    const setupPath = await writeSetup(framework, config.server, project.ingestKey);
     await writeFile(
       join(process.cwd(), ".error-mom.json"),
       `${JSON.stringify({ server: config.server, projectId: project.id, projectName: project.name, framework: framework.id }, null, 2)}\n`,
@@ -199,7 +199,7 @@ program
       setupFile: setupPath,
       verified: false,
       wiring: framework.wiring,
-      nextAction: `Wire it up: ${framework.wiring} For handlers where a framework catches errors itself (queue/cron jobs, webhooks, MCP tools), wrap each with errorMom.wrap(fn, { culprit: "<name>" }). Then run error-mom doctor --project-key <key>.`,
+      nextAction: `Wire it up: ${framework.wiring} If the app routes caught errors through a central handler or error-broadcast function, call errorMom.captureError(err) inside it — that is where framework-caught and LLM errors surface. For handlers where a framework catches errors itself (queue/cron jobs, webhooks, MCP tools), wrap each with errorMom.wrap(fn, { culprit: "<name>" }). The setup file has the write-only project key baked in so production builds report without any CI configuration. Then run error-mom doctor --project-key <key>.`,
     });
   });
 
@@ -526,10 +526,14 @@ function installSdk(packageManager: "pnpm" | "yarn" | "npm"): void {
   });
 }
 
-async function writeSetup(framework: FrameworkInfo): Promise<string> {
+async function writeSetup(
+  framework: FrameworkInfo,
+  server: string,
+  ingestKey: string,
+): Promise<string> {
   const sourceDirectory = existsSync(join(process.cwd(), "src")) ? "src" : ".";
   const relativePath = join(sourceDirectory, "error-mom.ts");
-  if (framework.id === "next") await writeNextInstrumentation(sourceDirectory);
+  if (framework.id === "next") await writeNextInstrumentation(sourceDirectory, server, ingestKey);
   const environment =
     framework.envStyle === "next"
       ? "process.env.NEXT_PUBLIC_"
@@ -538,7 +542,12 @@ async function writeSetup(framework: FrameworkInfo): Promise<string> {
         : "process.env.";
   const moduleName =
     framework.envStyle === "node" ? "@kenkaiiii/error-mom/node" : "@kenkaiiii/error-mom";
-  const contents = `${framework.id === "next" ? '"use client";\n\n' : ""}import { initErrorMom } from "${moduleName}";\n\nconst server = ${environment}ERROR_MOM_SERVER;\nconst projectKey = ${environment}ERROR_MOM_PROJECT_KEY;\nconst release = ${environment}ERROR_MOM_RELEASE;\n\nexport const errorMom =\n  server && projectKey\n    ? initErrorMom({\n        server,\n        projectKey,\n        environment: ${environment}ERROR_MOM_ENVIRONMENT ?? "production",\n        ...(release ? { release } : {}),\n      })\n    : undefined;\n`;
+  // The ingest key is baked into the committed setup file on purpose — the
+  // Sentry DSN model. It is WRITE-ONLY: it can submit error events and
+  // nothing else, so shipping it in a build or committing it is safe by the
+  // collector's security model. Without this, production/CI builds (which
+  // never see the gitignored .env.local) silently ship with tracking off.
+  const contents = `${framework.id === "next" ? '"use client";\n\n' : ""}import { initErrorMom } from "${moduleName}";\n\n// The project key is write-only (submit errors, read nothing), so committing\n// it is safe — same model as a Sentry DSN. Env vars override when present.\nconst server = ${environment}ERROR_MOM_SERVER ?? ${JSON.stringify(server)};\nconst projectKey = ${environment}ERROR_MOM_PROJECT_KEY ?? ${JSON.stringify(ingestKey)};\nconst release = ${environment}ERROR_MOM_RELEASE;\n\nexport const errorMom = initErrorMom({\n  server,\n  projectKey,\n  environment: ${environment}ERROR_MOM_ENVIRONMENT ?? "production",\n  ...(release ? { release } : {}),\n});\n`;
   await writeFile(join(process.cwd(), relativePath), contents);
   return relativePath;
 }
@@ -546,22 +555,26 @@ async function writeSetup(framework: FrameworkInfo): Promise<string> {
 // Next.js catches server-side errors (API routes, SSR, server actions) to
 // render a 500, so they never reach process-level handlers. onRequestError in
 // instrumentation.ts is Next's official reporting hook for exactly this.
-async function writeNextInstrumentation(sourceDirectory: string): Promise<void> {
+async function writeNextInstrumentation(
+  sourceDirectory: string,
+  configuredServer: string,
+  ingestKey: string,
+): Promise<void> {
   const file = join(process.cwd(), sourceDirectory, "instrumentation.ts");
   if (existsSync(file)) return; // Never clobber an app's existing instrumentation.
   const contents = `import type { Instrumentation } from "next";
 
 // Reports server-side errors (API routes, SSR, server actions, middleware)
 // that Next.js catches before they can become uncaught exceptions.
+// The baked-in project key is write-only, so committing it is safe.
 export const onRequestError: Instrumentation.onRequestError = async (
   error,
   request,
   context,
 ) => {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
-  const server = process.env.NEXT_PUBLIC_ERROR_MOM_SERVER;
-  const projectKey = process.env.NEXT_PUBLIC_ERROR_MOM_PROJECT_KEY;
-  if (!server || !projectKey) return;
+  const server = process.env.NEXT_PUBLIC_ERROR_MOM_SERVER ?? ${JSON.stringify(configuredServer)};
+  const projectKey = process.env.NEXT_PUBLIC_ERROR_MOM_PROJECT_KEY ?? ${JSON.stringify(ingestKey)};
   const { initErrorMom } = await import("@kenkaiiii/error-mom/node");
   initErrorMom({
     server,

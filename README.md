@@ -126,22 +126,31 @@ My admin token: MY_ADMIN_TOKEN
    SvelteKit, Nuxt, Remix, Angular, Express, Fastify, Hono, NestJS, or
    plain Node) and generates a setup file. Its JSON output includes a
    "wiring" field with exact instructions for THIS framework's official
-   error hook. Follow them precisely. Error tracking must never break the
-   app: missing env vars skip tracking, never crash.
+   error hook. Follow them precisely.
+   The setup file has the write-only project key baked in on purpose (the
+   Sentry DSN model): it can only submit errors, never read them, so it is
+   safe to commit, and production/CI builds report with zero extra config.
    (On Next.js apps init also generates instrumentation.ts, which reports
    server-side errors: API routes, SSR, server actions. Keep it.)
-4. Some errors get caught by frameworks before Error Mom can see them.
-   Find handlers where errors are caught and retried or turned into
-   responses (queue/cron jobs like Inngest, webhook routes, MCP tools) and
-   wrap each one: errorMom.wrap(handlerFn, { culprit: "<job or route name>" }).
+4. Cover every process and every catch site:
+   - If the app has MULTIPLE processes (Electron main + renderer, Tauri
+     webview + Node sidecars, worker processes), initialize the SDK in
+     EACH one; the browser build for UI processes, @kenkaiiii/error-mom/node
+     for Node processes. One process covered is not covered.
+   - If the app funnels caught errors through a central handler or
+     error-broadcast function, call errorMom.captureError(err) inside it.
+   - Wrap handlers where a framework catches errors itself (queue/cron
+     jobs like Inngest, webhook routes, MCP tools):
+     errorMom.wrap(handlerFn, { culprit: "<job or route name>" }).
    Failed calls to AI providers (Anthropic, OpenAI, Kimi, GLM, and ~40
-   more) are captured and tagged automatically; no setup needed.
+   more) are captured and tagged automatically in every covered process.
 5. Prove it works end to end:
    error-mom doctor --project-key <the key init wrote into the env file>
    Success = the response shows "accepted": 1 and "synthetic": 1. Doctor's
    test event is never shown as a real error, so my dashboard stays clean.
-6. Check the secret key is NOT in git (it must live in a gitignored env
-   file), then commit the changes and confirm to me it's all connected.
+6. Commit the changes and confirm to me it's all connected. The baked
+   project key is safe to commit (write-only), but my ADMIN token must
+   never appear in git; check before committing.
 ```
 
 From now on, every crash in that app shows up on your dashboard automatically: grouped, counted, with the story of what happened right before.
@@ -154,14 +163,21 @@ Update this app's Error Mom integration to the latest version.
 
 1. Upgrade @kenkaiiii/error-mom to the latest version with this project's
    package manager, and update the CLI: npm install -g error-mom
-2. If this is a Next.js app, run: error-mom init --skip-install
-   It reuses the existing project and adds instrumentation.ts for
-   server-side error reporting. Do not overwrite an existing setup file's
-   customizations.
-3. Find handlers where a framework catches errors itself (queue/cron jobs,
-   webhook routes, MCP tools) and wrap each with
-   errorMom.wrap(fn, { culprit: "<name>" }).
-4. Verify with error-mom doctor, confirm no secrets entered git, commit.
+2. Re-run: error-mom init --skip-install
+   It reuses the existing project, regenerates the setup file with the
+   write-only project key baked in (so production/CI builds report without
+   env configuration), and on Next.js adds instrumentation.ts for
+   server-side errors. Re-apply any customizations the old setup file had.
+3. Audit coverage, then fix every gap:
+   - Every process initializes the SDK (UI processes use the browser
+     build, Node processes/sidecars/workers use @kenkaiiii/error-mom/node).
+   - Any central error handler or error-broadcast function calls
+     errorMom.captureError(err).
+   - Handlers where a framework catches errors itself (queue/cron jobs,
+     webhook routes, MCP tools) are wrapped with
+     errorMom.wrap(fn, { culprit: "<name>" }).
+4. Verify with error-mom doctor, confirm the admin token is not in git
+   (the baked project key is fine, it is write-only), commit.
 ```
 
 </details>
