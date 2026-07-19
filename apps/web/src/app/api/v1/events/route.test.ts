@@ -23,10 +23,7 @@ function postEvents(events: ErrorEvent[]): Promise<Response> {
   );
 }
 
-function buildEvent(overrides: {
-  errorName?: string;
-  tags?: Record<string, string>;
-}): ErrorEvent {
+function buildEvent(overrides: { errorName?: string; tags?: Record<string, string> }): ErrorEvent {
   return {
     eventId: crypto.randomUUID(),
     timestamp: new Date().toISOString(),
