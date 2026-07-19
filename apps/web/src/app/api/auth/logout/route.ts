@@ -11,7 +11,7 @@ export async function POST(request: Request): Promise<Response> {
       ?.slice(SESSION_COOKIE.length + 1) ?? "";
   await destroySession(decodeURIComponent(session)).catch(() => undefined);
 
-  const response = NextResponse.redirect(new URL("/login", request.url), 303);
+  const response = new NextResponse(null, { status: 303, headers: { location: "/login" } });
   response.cookies.set(SESSION_COOKIE, "", {
     httpOnly: true,
     sameSite: "strict",

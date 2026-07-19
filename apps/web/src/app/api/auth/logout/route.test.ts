@@ -25,7 +25,7 @@ describe("logout route", () => {
 
     expect(destroySession).toHaveBeenCalledWith("sess_test:value");
     expect(response.status).toBe(303);
-    expect(response.headers.get("location")).toBe("https://errors.example.com/login");
+    expect(response.headers.get("location")).toBe("/login");
     expect(response.headers.get("set-cookie")).toContain("error_mom_session=");
     expect(response.headers.get("set-cookie")).toContain("Max-Age=0");
   });
