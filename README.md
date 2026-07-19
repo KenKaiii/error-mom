@@ -16,7 +16,7 @@
 
 **Error Mom** is your own private error tracker. Every app you build reports its crashes to one dashboard, and your coding agent reads those errors and fixes them for you.
 
-No Sentry subscription, no per-seat pricing, no data on someone else's cloud. One deployment, all your apps, and setup is three copy-paste prompts — you don't need to understand any of the code here.
+No Sentry subscription, no per-seat pricing, no data on someone else's cloud. One deployment, all your apps, and setup is three copy-paste prompts. You don't need to understand any of the code here.
 
 ---
 
@@ -24,23 +24,23 @@ No Sentry subscription, no per-seat pricing, no data on someone else's cloud. On
 
 ### One dashboard for every app
 
-Deploy Error Mom once. Connect as many of your apps as you want — each gets its own write-only key, and every crash lands in the same queue.
+Deploy Error Mom once. Connect as many of your apps as you want. Each gets its own write-only key, and every crash lands in the same queue.
 
 ### Your coding agent fixes the errors
 
-The `error-mom` CLI and built-in MCP server let Claude Code, Cursor, or GG Coder list your unresolved issues, read the stack traces and breadcrumbs, fix the code, and mark issues resolved — all from one prompt.
+The `error-mom` CLI and built-in MCP server let Claude Code, Cursor, or GG Coder list your unresolved issues, read the stack traces and breadcrumbs, fix the code, and mark issues resolved, all from one prompt.
 
 ### Repeats are counted, not duplicated
 
 The same crash happening 500 times shows as **one** issue with a count of 500, plus a few representative samples. Your queue stays readable.
 
-### Fixed means fixed — until it isn't
+### Fixed means fixed, until it isn't
 
 Resolving an issue records the release that fixed it. If the same error comes back in that release or a newer one, the issue automatically reopens as **regressed**.
 
 ### Secrets never land in the database
 
-Passwords, tokens, cookies, authorization headers, and API keys are scrubbed twice — in the SDK before sending and in the collector before storing.
+Passwords, tokens, cookies, authorization headers, and API keys are scrubbed twice: in the SDK before sending and in the collector before storing.
 
 ### Tracking can never break your app
 
@@ -50,14 +50,14 @@ Capture never throws into your code. Offline? Browser events queue in local stor
 
 ## 🆚 Error Mom vs Sentry
 
-|           | **Error Mom**                                              | **Sentry**                                           |
-| --------- | ---------------------------------------------------------- | ---------------------------------------------------- |
-| Cost      | ~$5/month total on Railway, unlimited apps                 | Free tier, then from $26/month, priced per event     |
-| Data      | Your server, your Postgres                                 | Their cloud (self-host exists but is heavy to run)   |
-| Built for | Coding agents — CLI + MCP so the agent fixes errors itself | Human dashboards, alerting, big-team workflows       |
-| Setup     | Three copy-paste prompts                                   | SDK config, DSNs, project settings per app           |
-| Scope     | Errors in, grouped issues out. On purpose.                 | Tracing, profiling, session replay, cron monitoring… |
-| Source    | Open source (MIT), read every line                         | Open core (FSL)                                      |
+|           | **Error Mom**                                             | **Sentry**                                           |
+| --------- | --------------------------------------------------------- | ---------------------------------------------------- |
+| Cost      | ~$5/month total on Railway, unlimited apps                | Free tier, then from $26/month, priced per event     |
+| Data      | Your server, your Postgres                                | Their cloud (self-host exists but is heavy to run)   |
+| Built for | Coding agents: CLI + MCP so the agent fixes errors itself | Human dashboards, alerting, big-team workflows       |
+| Setup     | Three copy-paste prompts                                  | SDK config, DSNs, project settings per app           |
+| Scope     | Errors in, grouped issues out. On purpose.                | Tracing, profiling, session replay, cron monitoring… |
+| Source    | Open source (MIT), read every line                        | Open core (FSL)                                      |
 
 If you need tracing, replay, and a big-team workflow, Sentry is a great product. If you want your own private error queue that your coding agent works through, this is a lot simpler and it's yours.
 
@@ -70,7 +70,7 @@ If you need tracing, replay, and a big-team workflow, Sentry is a great product.
 
 That's it. You never run Docker, never touch a database, never write config.
 
-## 🚀 Prompt 1 — Set up Error Mom (do this once, ever)
+## 🚀 Prompt 1: Set up Error Mom (do this once, ever)
 
 Paste this into your coding agent:
 
@@ -88,7 +88,7 @@ Set up Error Mom, my private error tracker, on Railway.
      --variables "ERROR_MOM_ADMIN_TOKEN=$(openssl rand -hex 32)"
    railway up --service error-mom --ci
    railway domain --service error-mom
-3. Do NOT run any migrations or extra setup — the database configures itself
+3. Do NOT run any migrations or extra setup. The database configures itself
    on first boot.
 4. Verify it works: keep checking <the printed domain>/api/health until it
    returns {"status":"ok"} (first boot can take a minute).
@@ -101,7 +101,7 @@ Set up Error Mom, my private error tracker, on Railway.
 
 When it's done, open the dashboard URL in your browser and log in with the admin token. Empty queue = working.
 
-## 🔌 Prompt 2 — Add error tracking to one of your apps
+## 🔌 Prompt 2: Add error tracking to one of your apps
 
 Do this once per app. Open the app in your coding agent, fill in the two placeholders, and paste:
 
@@ -120,7 +120,7 @@ My admin token: MY_ADMIN_TOKEN
    package manager)
 3. init generates a setup file (like src/error-mom.ts). Import it from the
    app's very FIRST entry point so even startup crashes get reported. Make
-   sure missing env vars just skip tracking instead of crashing the app —
+   sure missing env vars just skip tracking instead of crashing the app;
    error tracking must never break the app itself.
 4. Prove it works end to end:
    error-mom doctor --project-key <the key init wrote into the env file>
@@ -130,9 +130,9 @@ My admin token: MY_ADMIN_TOKEN
    file), then commit the changes and confirm to me it's all connected.
 ```
 
-From now on, every crash in that app shows up on your dashboard automatically — grouped, counted, with the story of what happened right before.
+From now on, every crash in that app shows up on your dashboard automatically: grouped, counted, with the story of what happened right before.
 
-## 🔧 Prompt 3 — Get your agent to fix the errors
+## 🔧 Prompt 3: Get your agent to fix the errors
 
 Whenever you want, paste this into the coding agent for any connected app:
 
@@ -168,8 +168,8 @@ Prefer your agent to have this always available? Add Error Mom as an MCP server 
 
 ## 📊 How you see your errors
 
-- **Dashboard** — your Railway URL, log in with the admin token. Shows every unresolved error, newest first, with counts.
-- **Ask your agent** — "check error mom" once it's logged in or connected via MCP.
+- **Dashboard**: your Railway URL, log in with the admin token. Shows every unresolved error, newest first, with counts.
+- **Ask your agent**: "check error mom" once it's logged in or connected via MCP.
 
 Nice things you don't have to think about:
 
@@ -182,8 +182,8 @@ Nice things you don't have to think about:
 
 ## 👥 Community
 
-- **YouTube** — [@kenkaidoesai](https://youtube.com/@kenkaidoesai) — tutorials and demos
-- **Skool** — [skool.com/kenkai](https://skool.com/kenkai) — come hang out
+- **YouTube**: [@kenkaidoesai](https://youtube.com/@kenkaidoesai) for tutorials and demos
+- **Skool**: [skool.com/kenkai](https://skool.com/kenkai), come hang out
 
 ---
 
