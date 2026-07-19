@@ -370,6 +370,18 @@ a.button:hover {
   background: var(--mac-light);
 }
 
+.project-rail-hint {
+  margin: 0;
+  color: var(--mac-black);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.project-rail-hint code {
+  font-family: var(--font-ui);
+  font-weight: 700;
+}
+
 .project-selector label {
   margin-block-end: 7px;
   padding-inline: 0;

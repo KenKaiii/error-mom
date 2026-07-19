@@ -1,5 +1,4 @@
 import type { IssueStatus, ProjectSummary } from "@kenkaiiii/error-mom-protocol";
-import { ProjectCreator } from "@/components/ProjectCreator";
 import { ProjectSelector } from "@/components/ProjectSelector";
 
 export function ProjectRail({
@@ -14,7 +13,11 @@ export function ProjectRail({
   return (
     <aside className="project-rail" aria-label="Project scope">
       <ProjectSelector projects={projects} selectedProjectId={selectedProjectId} status={status} />
-      <ProjectCreator />
+      {projects.length === 0 ? (
+        <p className="project-rail-hint">
+          Projects appear here when a coding agent runs <code>error-mom init</code> inside an app.
+        </p>
+      ) : null}
     </aside>
   );
 }
