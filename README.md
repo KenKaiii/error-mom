@@ -22,56 +22,65 @@ pnpm dev
 
 Open `http://localhost:3000` and enter the admin token. Create a project to receive its write-only ingest key once.
 
-## Deploy to Railway
+## Step 1: Deploy Error Mom (paste this prompt into your coding agent)
 
-With the [Railway CLI](https://docs.railway.com/guides/cli) installed and logged in:
+One-time setup. Requires the [Railway CLI](https://docs.railway.com/guides/cli) installed and logged in (`railway login`). Paste this to your agent:
 
-```bash
-railway init --name error-mom
-railway add --database postgres
-railway add --service error-mom \
-  --variables 'DATABASE_URL=${{Postgres.DATABASE_URL}}' \
-  --variables "ERROR_MOM_ADMIN_TOKEN=$(openssl rand -hex 32)"
-railway up --service error-mom
-railway domain --service error-mom
+```text
+Deploy Error Mom (self-hosted error monitoring) to Railway for me.
+
+1. Run these commands:
+   railway init --name error-mom
+   railway add --database postgres
+   railway add --service error-mom \
+     --variables 'DATABASE_URL=${{Postgres.DATABASE_URL}}' \
+     --variables "ERROR_MOM_ADMIN_TOKEN=$(openssl rand -hex 32)"
+   railway up --service error-mom --ci
+   railway domain --service error-mom
+2. The deploy builds from the Dockerfile automatically; the database schema
+   creates itself on first boot. Do not run migrations manually.
+3. Verify: curl the printed domain at /api/health until it returns
+   {"status":"ok"} (allow ~60s for the first boot).
+4. Save the generated ERROR_MOM_ADMIN_TOKEN somewhere safe outside git and
+   tell me the dashboard URL and where you saved the token. That token is my
+   dashboard login and agent credential — never commit it.
 ```
 
-That is the whole deployment. `railway.json` and `Dockerfile` provide the build, `/api/health` health check, and production server configuration. The schema is created automatically on first boot, and TLS is auto-disabled on Railway private networking (`*.railway.internal`). Save the generated `ERROR_MOM_ADMIN_TOKEN` — it is the dashboard login and agent credential.
+No Docker needed on your machine — Railway builds the image. Prefer clicking? Create a Railway project from your GitHub fork, add the PostgreSQL plugin, and set `DATABASE_URL` + `ERROR_MOM_ADMIN_TOKEN` on the web service.
 
-Prefer the dashboard? Create a project from your GitHub fork, add the PostgreSQL plugin, and set the same two variables on the web service. Each user deploys one private Error Mom instance and creates as many app projects as needed inside it.
+## Step 2: Add error tracking to an app (paste this prompt into your coding agent)
 
-## Connect an app (the whole process)
+Repeat for each app you want monitored. Open the app with your coding agent, replace the URL and token placeholders, and paste:
 
-You deployed Error Mom once. Now, for each app you want monitored, open that app with your coding agent and have it run:
+```text
+Hook this app up to my self-hosted Error Mom for error tracking.
 
-```bash
-npm install --global error-mom
-error-mom login https://your-error-mom.up.railway.app --token "$ERROR_MOM_ADMIN_TOKEN"   # once per machine
-error-mom init
+Server: https://YOUR-ERROR-MOM.up.railway.app
+Admin token: YOUR_ADMIN_TOKEN
+
+1. Install the CLI and authenticate:
+   npm install --global error-mom
+   error-mom login <server> --token <admin token>
+2. From this app's directory run: error-mom init
+   (in a pnpm/yarn workspace use: error-mom init --skip-install, then add
+   @kenkaiiii/error-mom to the app with the workspace's package manager)
+3. init creates the project, writes the ingest key to the env file, and
+   generates a setup file (for example src/error-mom.ts). Import that setup
+   file from the app's EARLIEST entry point so startup errors are captured.
+   Guard the init call so missing env vars skip monitoring instead of
+   throwing — capture must never crash the app.
+4. Verify end to end: error-mom doctor --project-key <key from the env file>
+   Success looks like "accepted": 1 with "synthetic": 1 — doctor events are
+   never stored as issues, so the queue stays clean.
+5. Confirm the ingest key stayed out of git (it belongs in a gitignored env
+   file), then commit the setup changes.
 ```
 
-`error-mom init` does the whole hookup in one shot:
-
-1. Creates a project on your deployment named after the app's `package.json` (or reuses a matching one).
-2. Mints the project's write-only ingest key and appends it with the server URL to the app's env file.
-3. Detects the framework and package manager, installs `@kenkaiiii/error-mom`, and writes a ready-made setup file (for example `src/error-mom.ts`).
-4. Prints JSON with the one remaining step: import the setup file from the app's earliest entry point.
-
-Then prove the pipeline end to end:
-
-```bash
-error-mom doctor --project-key <key>
-```
-
-Doctor pushes a synthetic event through auth, validation, and rate limiting. It is counted in the response (`"synthetic": 1`) but never stored as an issue, so your queue only ever contains real errors.
-
-From that moment every uncaught error, unhandled rejection, `console.error`, and failed request flows to your dashboard, grouped by fingerprint with repeat counts. Watch them three ways:
+After that, every uncaught error, unhandled rejection, `console.error`, and failed request flows to your dashboard, grouped by fingerprint with repeat counts. Watch them three ways:
 
 - **Dashboard**: your deployment URL, signed in with the admin token.
 - **CLI**: `error-mom issues`, `error-mom inspect <id>`, `error-mom resolve <id> --release <version>`.
 - **MCP**: your coding agent queries and resolves issues itself — see the MCP config below.
-
-Monorepo note: `init` shells out to npm for the install. In pnpm or yarn workspaces run `error-mom init --skip-install`, then add the SDK with your own tool (for example `pnpm --filter <app> add @kenkaiiii/error-mom`).
 
 ## Browser setup
 
