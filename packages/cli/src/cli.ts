@@ -9,7 +9,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-const VERSION = "0.2.0";
+const VERSION = "0.3.0";
 const CONFIG_DIR = join(homedir(), ".error-mom");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
@@ -173,19 +173,17 @@ program
     const setupPath = await writeSetup(framework);
     await writeFile(
       join(process.cwd(), ".error-mom.json"),
-      `${JSON.stringify({ server: config.server, projectId: project.id, projectName: project.name, framework }, null, 2)}\n`,
+      `${JSON.stringify({ server: config.server, projectId: project.id, projectName: project.name, framework: framework.id }, null, 2)}\n`,
     );
     await appendEnvironment(framework, config.server, project.ingestKey);
     print({
       installed: !options.skipInstall,
       project: { id: project.id, name: project.name, slug: project.slug },
-      framework,
+      framework: framework.id,
       setupFile: setupPath,
       verified: false,
-      nextAction:
-        framework === "next"
-          ? `Import ${setupPath} from the root layout for client errors; instrumentation.ts already reports server errors. For jobs/handlers that catch errors themselves (queues, webhooks, MCP tools), wrap them with errorMom.wrap(fn). Then run error-mom doctor --project-key <key>.`
-          : `Import ${setupPath} from the earliest ${framework} entry point. For code where a framework catches errors itself (job runners, webhooks, MCP tools), wrap handlers with errorMom.wrap(fn). Then run error-mom doctor --project-key <key>.`,
+      wiring: framework.wiring,
+      nextAction: `Wire it up: ${framework.wiring} For handlers where a framework catches errors itself (queue/cron jobs, webhooks, MCP tools), wrap each with errorMom.wrap(fn, { culprit: "<name>" }). Then run error-mom doctor --project-key <key>.`,
     });
   });
 
@@ -332,14 +330,149 @@ async function readPackageJson(cwd: string): Promise<Record<string, unknown>> {
   }
 }
 
-function detectFramework(packageJson: Record<string, unknown>): "next" | "vite" | "node" {
+// Env style decides variable prefix and which SDK entry the setup file uses.
+// "vite" covers everything Vite-bundled (import.meta.env.VITE_*), "node"
+// covers plain process.env servers, "next" is NEXT_PUBLIC_ plus codegen.
+interface FrameworkInfo {
+  id: string;
+  envStyle: "next" | "vite" | "node";
+  // Framework-specific wiring instructions for the coding agent running init,
+  // each pointing at the framework's official error hook instead of guessing.
+  wiring: string;
+}
+
+const FRAMEWORKS: Array<[dependency: string, info: FrameworkInfo]> = [
+  [
+    "next",
+    {
+      id: "next",
+      envStyle: "next",
+      wiring:
+        "Import the setup file from the root layout for client errors; the generated instrumentation.ts already reports server errors (API routes, SSR, server actions).",
+    },
+  ],
+  [
+    "@tauri-apps/api",
+    {
+      id: "tauri",
+      envStyle: "vite",
+      wiring:
+        "Import the setup file first in the webview entry (main.tsx or equivalent). If the app spawns Node sidecar processes, also call initErrorMom from @kenkaiiii/error-mom/node at each sidecar entry so backend/LLM errors are reported too. Rust-side panics are not captured.",
+    },
+  ],
+  [
+    "electron",
+    {
+      id: "electron",
+      envStyle: "node",
+      wiring:
+        "Call initErrorMom from @kenkaiiii/error-mom/node at the TOP of the main process entry, and import @kenkaiiii/error-mom (browser build) first in each renderer entry. Both report to the same project.",
+    },
+  ],
+  [
+    "astro",
+    {
+      id: "astro",
+      envStyle: "vite",
+      wiring:
+        "Load the setup file as a client script in the base layout so it runs on every page. For SSR/API routes, add src/middleware.ts that wraps next() with errorMom.wrap using @kenkaiiii/error-mom/node.",
+    },
+  ],
+  [
+    "@sveltejs/kit",
+    {
+      id: "sveltekit",
+      envStyle: "vite",
+      wiring:
+        "Import the setup file in hooks.client.ts and export handleError from BOTH hooks.client.ts and hooks.server.ts calling errorMom.captureError(error); the server hook uses @kenkaiiii/error-mom/node. SvelteKit catches load/endpoint errors, so handleError is its official reporting hook.",
+    },
+  ],
+  [
+    "nuxt",
+    {
+      id: "nuxt",
+      envStyle: "vite",
+      wiring:
+        "Create a client plugin (plugins/error-mom.client.ts) importing the setup file, and a nitro plugin hooking 'error' with @kenkaiiii/error-mom/node for server-side errors.",
+    },
+  ],
+  [
+    "@remix-run/react",
+    {
+      id: "remix",
+      envStyle: "node",
+      wiring:
+        "Import the setup file in entry.client.tsx, and export handleError from entry.server.tsx calling errorMom.captureError(error). Remix catches loader/action errors and handleError is its official reporting hook.",
+    },
+  ],
+  [
+    "@angular/core",
+    {
+      id: "angular",
+      envStyle: "node",
+      wiring:
+        "Import the setup file in main.ts and provide a custom ErrorHandler that calls errorMom.captureError(error). Angular catches component errors in its own handler.",
+    },
+  ],
+  [
+    "express",
+    {
+      id: "express",
+      envStyle: "node",
+      wiring:
+        "Import the setup file at the TOP of the server entry, and add a final error middleware: (err, req, res, next) => { errorMom.captureError(err, { culprit: `${req.method} ${req.path}` }); next(err); }. Express catches route errors, so the middleware is where they surface.",
+    },
+  ],
+  [
+    "fastify",
+    {
+      id: "fastify",
+      envStyle: "node",
+      wiring:
+        "Import the setup file at the TOP of the server entry, and call errorMom.captureError(error) inside setErrorHandler before replying. Fastify catches handler errors there.",
+    },
+  ],
+  [
+    "hono",
+    {
+      id: "hono",
+      envStyle: "node",
+      wiring:
+        "Import the setup file at the TOP of the server entry, and call errorMom.captureError(err) inside app.onError. Hono catches handler errors there.",
+    },
+  ],
+  [
+    "@nestjs/core",
+    {
+      id: "nestjs",
+      envStyle: "node",
+      wiring:
+        "Import the setup file at the TOP of main.ts, and add a global exception filter that calls errorMom.captureError(exception) before delegating to the base filter.",
+    },
+  ],
+  [
+    "vite",
+    {
+      id: "vite",
+      envStyle: "vite",
+      wiring: "Import the setup file first in the app entry (main.tsx or equivalent).",
+    },
+  ],
+];
+
+function detectFramework(packageJson: Record<string, unknown>): FrameworkInfo {
   const dependencies = {
     ...((packageJson.dependencies as Record<string, string> | undefined) ?? {}),
     ...((packageJson.devDependencies as Record<string, string> | undefined) ?? {}),
   };
-  if (dependencies.next) return "next";
-  if (dependencies.vite) return "vite";
-  return "node";
+  for (const [dependency, info] of FRAMEWORKS) {
+    if (dependencies[dependency]) return info;
+  }
+  return {
+    id: "node",
+    envStyle: "node",
+    wiring: "Import the setup file at the TOP of the main entry point, before anything else.",
+  };
 }
 
 function detectPackageManager(cwd: string): "pnpm" | "yarn" | "npm" {
@@ -360,18 +493,19 @@ function installSdk(packageManager: "pnpm" | "yarn" | "npm"): void {
   });
 }
 
-async function writeSetup(framework: "next" | "vite" | "node"): Promise<string> {
+async function writeSetup(framework: FrameworkInfo): Promise<string> {
   const sourceDirectory = existsSync(join(process.cwd(), "src")) ? "src" : ".";
   const relativePath = join(sourceDirectory, "error-mom.ts");
-  if (framework === "next") await writeNextInstrumentation(sourceDirectory);
+  if (framework.id === "next") await writeNextInstrumentation(sourceDirectory);
   const environment =
-    framework === "next"
+    framework.envStyle === "next"
       ? "process.env.NEXT_PUBLIC_"
-      : framework === "vite"
+      : framework.envStyle === "vite"
         ? "import.meta.env.VITE_"
         : "process.env.";
-  const moduleName = framework === "node" ? "@kenkaiiii/error-mom/node" : "@kenkaiiii/error-mom";
-  const contents = `${framework === "next" ? '"use client";\n\n' : ""}import { initErrorMom } from "${moduleName}";\n\nconst server = ${environment}ERROR_MOM_SERVER;\nconst projectKey = ${environment}ERROR_MOM_PROJECT_KEY;\nconst release = ${environment}ERROR_MOM_RELEASE;\n\nif (!server || !projectKey) {\n  throw new Error("ERROR_MOM_SERVER and ERROR_MOM_PROJECT_KEY are required");\n}\n\ninitErrorMom({\n  server,\n  projectKey,\n  environment: ${environment}ERROR_MOM_ENVIRONMENT ?? "production",\n  ...(release ? { release } : {}),\n});\n`;
+  const moduleName =
+    framework.envStyle === "node" ? "@kenkaiiii/error-mom/node" : "@kenkaiiii/error-mom";
+  const contents = `${framework.id === "next" ? '"use client";\n\n' : ""}import { initErrorMom } from "${moduleName}";\n\nconst server = ${environment}ERROR_MOM_SERVER;\nconst projectKey = ${environment}ERROR_MOM_PROJECT_KEY;\nconst release = ${environment}ERROR_MOM_RELEASE;\n\nexport const errorMom =\n  server && projectKey\n    ? initErrorMom({\n        server,\n        projectKey,\n        environment: ${environment}ERROR_MOM_ENVIRONMENT ?? "production",\n        ...(release ? { release } : {}),\n      })\n    : undefined;\n`;
   await writeFile(join(process.cwd(), relativePath), contents);
   return relativePath;
 }
@@ -410,11 +544,12 @@ export const onRequestError: Instrumentation.onRequestError = async (
 }
 
 async function appendEnvironment(
-  framework: "next" | "vite" | "node",
+  framework: FrameworkInfo,
   server: string,
   key: string,
 ): Promise<void> {
-  const prefix = framework === "next" ? "NEXT_PUBLIC_" : framework === "vite" ? "VITE_" : "";
+  const prefix =
+    framework.envStyle === "next" ? "NEXT_PUBLIC_" : framework.envStyle === "vite" ? "VITE_" : "";
   const file = join(process.cwd(), ".env.local");
   const existing = existsSync(file) ? await readFile(file, "utf8") : "";
   const lines = [

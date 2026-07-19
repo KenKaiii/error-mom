@@ -122,10 +122,12 @@ My admin token: MY_ADMIN_TOKEN
    (if this is a pnpm or yarn workspace, run: error-mom init --skip-install,
    then install @kenkaiiii/error-mom into the app with the workspace's own
    package manager)
-3. init generates a setup file (like src/error-mom.ts). Import it from the
-   app's very FIRST entry point so even startup crashes get reported. Make
-   sure missing env vars just skip tracking instead of crashing the app;
-   error tracking must never break the app itself.
+3. init detects the framework (Next.js, Vite, Tauri, Electron, Astro,
+   SvelteKit, Nuxt, Remix, Angular, Express, Fastify, Hono, NestJS, or
+   plain Node) and generates a setup file. Its JSON output includes a
+   "wiring" field with exact instructions for THIS framework's official
+   error hook. Follow them precisely. Error tracking must never break the
+   app: missing env vars skip tracking, never crash.
    (On Next.js apps init also generates instrumentation.ts, which reports
    server-side errors: API routes, SSR, server actions. Keep it.)
 4. Some errors get caught by frameworks before Error Mom can see them.
