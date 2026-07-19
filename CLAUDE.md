@@ -35,6 +35,7 @@ Set `TEST_DATABASE_URL` to run the PostgreSQL integration test. CI always runs i
 - Group events by project and normalized fingerprint; increment quantity instead of retaining every event.
 - Keep at most representative samples per issue and query unresolved issues by default.
 - Resolving requires `fixedInRelease`; matching or later recurrence becomes `regressed`.
+- Doctor synthetic events (`ErrorMomDoctor` + `synthetic` tag) are validated and rate-checked but never persisted as issues.
 - Browser and Node capture must never throw into or block the host app.
 - Node capture writes JSONL before upload; browser capture queues in local storage.
 - New agent operations belong in both the HTTP API and MCP/CLI when applicable.

@@ -1,5 +1,11 @@
-import { eventBatchSchema } from "@kenkaiiii/error-mom-protocol";
+import { eventBatchSchema, type ErrorEvent } from "@kenkaiiii/error-mom-protocol";
 import { findProjectByIngestKey, ingestEvents, reserveIngestCapacity } from "@/lib/issues";
+
+// Synthetic verification events (error-mom doctor) exercise the full pipeline
+// but must never appear as issues — users would mistake them for real errors.
+function isSyntheticVerification(event: ErrorEvent): boolean {
+  return event.error.name === "ErrorMomDoctor" && event.tags["synthetic"] === "true";
+}
 
 const CORS_HEADERS = {
   "access-control-allow-origin": "*",
@@ -52,9 +58,14 @@ export async function POST(request: Request): Promise<Response> {
     });
   }
 
-  await ingestEvents(project.id, result.data.events);
+  const persistable = result.data.events.filter((event) => !isSyntheticVerification(event));
+  if (persistable.length > 0) await ingestEvents(project.id, persistable);
   return Response.json(
-    { accepted: result.data.events.length, projectId: project.id },
+    {
+      accepted: result.data.events.length,
+      synthetic: result.data.events.length - persistable.length,
+      projectId: project.id,
+    },
     { status: 202, headers: CORS_HEADERS },
   );
 }
