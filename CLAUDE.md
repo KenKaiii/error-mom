@@ -29,7 +29,7 @@ Set `TEST_DATABASE_URL` to run the PostgreSQL integration test. CI always runs i
 
 - Ingest keys only write events. They must never read projects or issues.
 - Admin tokens are required for every dashboard and agent API operation.
-- Source map upload (`/api/v1/sourcemaps`) is an admin-token operation; ingest keys are rejected.
+- Source map upload (`/api/v1/sourcemaps`) and symbolication checks (`/api/v1/sourcemaps/check`) are admin-token operations; ingest keys are rejected.
 - Store only hashes of ingest keys and installation IDs.
 - Redact known secrets before persistence, even when SDKs already redacted them.
 - Event retries are idempotent through `(project_id, event_id)` receipts.

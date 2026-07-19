@@ -157,6 +157,10 @@ My admin token: MY_ADMIN_TOKEN
    token in the CI secret store (e.g. ERROR_MOM_ADMIN_TOKEN) — it must
    never live in the repo. Source map upload requires the admin token;
    the write-only project key cannot upload maps.
+   Prove the pipeline works with: error-mom doctor --symbolication
+   (round-trips a synthetic minified stack through the server, stores
+   nothing). The upload command also prints warnings when maps lack
+   sourcesContent or the release doesn't match any reported events.
 7. Commit the changes and confirm to me it's all connected. The baked
    project key is safe to commit (write-only), but my ADMIN token must
    never appear in git; check before committing.

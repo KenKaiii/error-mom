@@ -9,7 +9,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-const VERSION = "0.5.0";
+const VERSION = "0.6.0";
 const CONFIG_DIR = join(homedir(), ".error-mom");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
@@ -127,7 +127,11 @@ program
   .command("doctor")
   .description("Verify collector health, credentials, and optional project ingestion")
   .option("--project-key <key>", "Send and verify a synthetic event with this write-only key")
-  .action(async (options: { projectKey?: string }) => {
+  .option(
+    "--symbolication",
+    "Round-trip a synthetic minified stack through the server's symbolication engine",
+  )
+  .action(async (options: { projectKey?: string; symbolication?: boolean }) => {
     const config = await loadConfig();
     const health = await request(config.server, undefined, "/api/health");
     const projects = await request(config.server, config.adminToken, "/api/v1/projects");
@@ -141,7 +145,36 @@ program
         },
       });
     }
-    print({ healthy: true, health, projects, ingestion });
+    let symbolication: unknown = "not tested";
+    if (options.symbolication) {
+      // Inline dry-run: the map travels in the request, nothing is stored,
+      // so this cannot pollute real releases or evict uploaded maps.
+      const result = (await request(config.server, config.adminToken, "/api/v1/sourcemaps/check", {
+        body: {
+          stack:
+            "ErrorMomDoctor: synthetic minified stack\n    at t.xyz (https://app.example/assets/doctor-abc.js:1:11)",
+          fileName: "doctor-abc.js",
+          map: {
+            version: 3,
+            file: "doctor-abc.js",
+            sources: ["src/doctor-fixture.ts"],
+            names: ["doctorBoom"],
+            mappings: "UAIEA",
+          },
+        },
+      })) as { symbolicated?: boolean; stack?: string };
+      const roundTripped =
+        result.symbolicated === true &&
+        typeof result.stack === "string" &&
+        result.stack.includes("doctorBoom (src/doctor-fixture.ts:5:3)");
+      if (!roundTripped) {
+        throw new Error(
+          `Symbolication round-trip failed: expected the synthetic frame to rewrite to src/doctor-fixture.ts:5:3, got ${JSON.stringify(result)}`,
+        );
+      }
+      symbolication = { verified: true, rewrittenFrame: "doctorBoom (src/doctor-fixture.ts:5:3)" };
+    }
+    print({ healthy: true, health, projects, ingestion, symbolication });
   });
 
 program
@@ -213,6 +246,7 @@ program
     }
     const uploaded: string[] = [];
     const skipped: Array<{ file: string; reason: string }> = [];
+    const warnings: string[] = [];
     for (const mapFile of mapFiles) {
       const info = await stat(mapFile);
       if (info.size > 20 * 1024 * 1024) {
@@ -228,6 +262,12 @@ program
       }
       // "app-abc123.js.map" symbolicates frames from "app-abc123.js".
       const fileName = basename(mapFile).replace(/\.map$/, "");
+      const sourcesContent = (map as { sourcesContent?: unknown[] }).sourcesContent;
+      if (!Array.isArray(sourcesContent) || sourcesContent.every((entry) => entry == null)) {
+        warnings.push(
+          `${fileName}: no sourcesContent — frames still symbolicate to file:line, but agents cannot read the original code from the map. Enable it in the bundler if you want richer context.`,
+        );
+      }
       try {
         await request(config.server, config.adminToken, "/api/v1/sourcemaps", {
           body: { projectId: options.project, release: options.release, fileName, map },
@@ -240,7 +280,8 @@ program
         });
       }
     }
-    print({ release: options.release, project: options.project, uploaded, skipped });
+    warnings.push(...(await releaseMismatchWarning(config, options.project, options.release)));
+    print({ release: options.release, project: options.project, uploaded, skipped, warnings });
   });
 
 program
@@ -320,6 +361,24 @@ async function runMcpServer(): Promise<void> {
             body: { status: "resolved", fixedInRelease },
           },
         ),
+      ),
+  );
+  server.registerTool(
+    "check_symbolication",
+    {
+      description:
+        "Dry-run a minified stack against a project's uploaded source maps to verify frames rewrite to original file:line. Nothing is stored.",
+      inputSchema: {
+        projectId: z.string().min(1).describe("Project id or slug"),
+        release: z.string().min(1),
+        stack: z.string().min(1).max(50_000),
+      },
+    },
+    async ({ projectId, release, stack }) =>
+      toolResult(
+        await request(config.server, config.adminToken, "/api/v1/sourcemaps/check", {
+          body: { projectId, release, stack },
+        }),
       ),
   );
   server.registerTool(
@@ -648,6 +707,42 @@ function syntheticEvent() {
     tags: { synthetic: "true" },
     context: {},
   };
+}
+
+// The silent misconfiguration users actually hit: uploading maps under a
+// release string the SDK never reports. Cross-check against recent issues.
+async function releaseMismatchWarning(
+  config: Config,
+  projectIdOrSlug: string,
+  release: string,
+): Promise<string[]> {
+  try {
+    const { projects } = (await request(config.server, config.adminToken, "/api/v1/projects")) as {
+      projects: Project[];
+    };
+    const project = projects.find(
+      (candidate) => candidate.id === projectIdOrSlug || candidate.slug === projectIdOrSlug,
+    );
+    if (!project) return [];
+    const { issues } = (await request(
+      config.server,
+      config.adminToken,
+      `/api/v1/issues?${new URLSearchParams({ projectId: project.id, status: "all" })}`,
+    )) as { issues: Array<{ latestRelease: string | null }> };
+    const seenReleases = [
+      ...new Set(issues.map((issue) => issue.latestRelease).filter((value) => value !== null)),
+    ];
+    if (seenReleases.length > 0 && !seenReleases.includes(release)) {
+      return [
+        `release "${release}" has not been reported by any event yet (recent releases: ${seenReleases
+          .slice(0, 5)
+          .join(", ")}). Maps only apply when the SDK's release matches --release exactly.`,
+      ];
+    }
+    return [];
+  } catch {
+    return []; // A warning helper must never fail the upload.
+  }
 }
 
 async function findMapFiles(dir: string): Promise<string[]> {
