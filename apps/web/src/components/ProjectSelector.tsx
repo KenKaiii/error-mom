@@ -31,7 +31,7 @@ export function ProjectSelector({
           value={selectedProjectId}
           onChange={(event) => selectProject(event.target.value)}
         >
-          <option value="">All projects</option>
+          <option value="">All projects ({projects.length})</option>
           {projects.map((project) => (
             <option key={project.id} value={project.id}>
               {project.name}
