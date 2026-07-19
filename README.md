@@ -1,35 +1,27 @@
 # Error Mom
 
-Self-hosted error monitoring built for coding agents and humans. One deployment receives errors from every app you control, groups repeats into counted issues, keeps representative evidence, and hides resolved work from the default agent queue.
+Your own private error tracker. Every app you build reports its crashes to one dashboard, and your coding agent can read those errors and fix them for you.
 
-## What ships
+You don't need to understand any of the code here. Setup is three copy-paste prompts.
 
-- `apps/web`: Next.js dashboard, ingestion API, agent API, authentication, and automatic PostgreSQL schema setup.
-- `packages/sdk`: automatic browser and Node.js capture with redaction, breadcrumbs, retries, and durable queues.
-- `packages/cli`: project setup, diagnostics, issue operations, and a local MCP stdio server.
-- `packages/protocol`: the validated event contract shared by collectors and SDKs.
+## What you need first
 
-## Run locally
+- A free [Railway](https://railway.com) account (this is where Error Mom runs, ~$5/month for the database and server).
+- A coding agent (Claude Code, Cursor, GG Coder, etc.).
 
-```bash
-cp .env.example apps/web/.env.local
-# Replace ERROR_MOM_ADMIN_TOKEN with at least 32 random characters.
-docker compose up -d
-pnpm install
-pnpm db:seed # optional: 3 projects and 9 realistic issues
-pnpm dev
-```
+That's it. You never run Docker, never touch a database, never write config.
 
-Open `http://localhost:3000` and enter the admin token. Create a project to receive its write-only ingest key once.
+## Prompt 1 — Set up Error Mom (do this once, ever)
 
-## Step 1: Deploy Error Mom (paste this prompt into your coding agent)
-
-One-time setup. Requires the [Railway CLI](https://docs.railway.com/guides/cli) installed and logged in (`railway login`). Paste this to your agent:
+Paste this into your coding agent:
 
 ```text
-Deploy Error Mom (self-hosted error monitoring) to Railway for me.
+Set up Error Mom, my private error tracker, on Railway.
 
-1. Run these commands:
+1. If the Railway CLI is not installed, install it (npm install -g @railway/cli
+   or brew install railway). If I am not logged in, run "railway login" and
+   wait for me to finish the browser login.
+2. Clone https://github.com/KenKaiii/error-mom and from inside that folder run:
    railway init --name error-mom
    railway add --database postgres
    railway add --service error-mom \
@@ -37,97 +29,72 @@ Deploy Error Mom (self-hosted error monitoring) to Railway for me.
      --variables "ERROR_MOM_ADMIN_TOKEN=$(openssl rand -hex 32)"
    railway up --service error-mom --ci
    railway domain --service error-mom
-2. The deploy builds from the Dockerfile automatically; the database schema
-   creates itself on first boot. Do not run migrations manually.
-3. Verify: curl the printed domain at /api/health until it returns
-   {"status":"ok"} (allow ~60s for the first boot).
-4. Save the generated ERROR_MOM_ADMIN_TOKEN somewhere safe outside git and
-   tell me the dashboard URL and where you saved the token. That token is my
-   dashboard login and agent credential — never commit it.
+3. Do NOT run any migrations or extra setup — the database configures itself
+   on first boot.
+4. Verify it works: keep checking <the printed domain>/api/health until it
+   returns {"status":"ok"} (first boot can take a minute).
+5. Then tell me, clearly:
+   - My dashboard URL
+   - My admin token (the ERROR_MOM_ADMIN_TOKEN value you generated)
+   - That I should save both somewhere safe, like a password manager.
+   Never commit the token to git.
 ```
 
-No Docker needed on your machine — Railway builds the image. Prefer clicking? Create a Railway project from your GitHub fork, add the PostgreSQL plugin, and set `DATABASE_URL` + `ERROR_MOM_ADMIN_TOKEN` on the web service.
+When it's done, open the dashboard URL in your browser and log in with the admin token. Empty queue = working.
 
-## Step 2: Add error tracking to an app (paste this prompt into your coding agent)
+## Prompt 2 — Add error tracking to one of your apps
 
-Repeat for each app you want monitored. Open the app with your coding agent, replace the URL and token placeholders, and paste:
+Do this once per app. Open the app in your coding agent, fill in the two placeholders, and paste:
 
 ```text
-Hook this app up to my self-hosted Error Mom for error tracking.
+Add error tracking to this app using my private Error Mom server.
 
-Server: https://YOUR-ERROR-MOM.up.railway.app
-Admin token: YOUR_ADMIN_TOKEN
+My server: https://MY-ERROR-MOM.up.railway.app
+My admin token: MY_ADMIN_TOKEN
 
-1. Install the CLI and authenticate:
+1. Install the CLI and log in:
    npm install --global error-mom
-   error-mom login <server> --token <admin token>
-2. From this app's directory run: error-mom init
-   (in a pnpm/yarn workspace use: error-mom init --skip-install, then add
-   @kenkaiiii/error-mom to the app with the workspace's package manager)
-3. init creates the project, writes the ingest key to the env file, and
-   generates a setup file (for example src/error-mom.ts). Import that setup
-   file from the app's EARLIEST entry point so startup errors are captured.
-   Guard the init call so missing env vars skip monitoring instead of
-   throwing — capture must never crash the app.
-4. Verify end to end: error-mom doctor --project-key <key from the env file>
-   Success looks like "accepted": 1 with "synthetic": 1 — doctor events are
-   never stored as issues, so the queue stays clean.
-5. Confirm the ingest key stayed out of git (it belongs in a gitignored env
-   file), then commit the setup changes.
+   error-mom login <my server> --token <my admin token>
+2. From this app's folder run: error-mom init
+   (if this is a pnpm or yarn workspace, run: error-mom init --skip-install,
+   then install @kenkaiiii/error-mom into the app with the workspace's own
+   package manager)
+3. init generates a setup file (like src/error-mom.ts). Import it from the
+   app's very FIRST entry point so even startup crashes get reported. Make
+   sure missing env vars just skip tracking instead of crashing the app —
+   error tracking must never break the app itself.
+4. Prove it works end to end:
+   error-mom doctor --project-key <the key init wrote into the env file>
+   Success = the response shows "accepted": 1 and "synthetic": 1. Doctor's
+   test event is never shown as a real error, so my dashboard stays clean.
+5. Check the secret key is NOT in git (it must live in a gitignored env
+   file), then commit the changes and confirm to me it's all connected.
 ```
 
-After that, every uncaught error, unhandled rejection, `console.error`, and failed request flows to your dashboard, grouped by fingerprint with repeat counts. Watch them three ways:
+From now on, every crash in that app shows up on your dashboard automatically — grouped, counted, with the story of what happened right before.
 
-- **Dashboard**: your deployment URL, signed in with the admin token.
-- **CLI**: `error-mom issues`, `error-mom inspect <id>`, `error-mom resolve <id> --release <version>`.
-- **MCP**: your coding agent queries and resolves issues itself — see the MCP config below.
+## Prompt 3 — Get your agent to fix the errors
 
-## Browser setup
+Whenever you want, paste this into the coding agent for any connected app:
 
-```bash
-pnpm add @kenkaiiii/error-mom
+```text
+Connect to my Error Mom and fix my errors.
+
+My server: https://MY-ERROR-MOM.up.railway.app
+My admin token: MY_ADMIN_TOKEN
+
+1. Make sure the error-mom CLI is installed and logged in
+   (npm install -g error-mom, then error-mom login <server> --token <token>).
+2. Run: error-mom issues
+3. For each unresolved issue in THIS app, run error-mom inspect <id> to see
+   the stack trace and the steps that led to it, find the cause in the code,
+   and fix it.
+4. After a fix ships, mark it done with:
+   error-mom resolve <id> --release <the app version containing the fix>
+5. Tell me what was broken and what you fixed, in plain words.
 ```
 
-```ts
-import { initErrorMom } from "@kenkaiiii/error-mom";
-
-export const errorMom = initErrorMom({
-  server: import.meta.env.VITE_ERROR_MOM_SERVER,
-  projectKey: import.meta.env.VITE_ERROR_MOM_PROJECT_KEY,
-  environment: import.meta.env.MODE,
-  release: import.meta.env.VITE_APP_VERSION,
-});
-```
-
-The browser adapter captures uncaught errors, unhandled rejections, `console.error`, failed network requests, and the 50 breadcrumbs preceding a failure. Events queue in local storage and retry without blocking the app.
-
-## Node.js setup
-
-```ts
-import { initErrorMom } from "@kenkaiiii/error-mom/node";
-
-export const errorMom = initErrorMom({
-  server: process.env.ERROR_MOM_SERVER!,
-  projectKey: process.env.ERROR_MOM_PROJECT_KEY!,
-  environment: process.env.NODE_ENV,
-  release: process.env.APP_VERSION,
-});
-```
-
-Node events append to `~/.error-mom/spool/*.jsonl` before upload. A network or collector outage cannot discard queued errors.
-
-## Agent and CLI setup
-
-```bash
-npm install --global error-mom
-error-mom login https://your-error-mom.up.railway.app --token "$ERROR_MOM_ADMIN_TOKEN"
-error-mom projects
-error-mom issues
-error-mom inspect issue_123
-error-mom resolve issue_123 --release 1.4.2
-```
-
-Add Error Mom to an MCP-capable coding agent:
+Prefer your agent to have this always available? Add Error Mom as an MCP server and it gets `list_issues`, `get_issue`, and `resolve_issue` as built-in tools:
 
 ```json
 {
@@ -140,26 +107,100 @@ Add Error Mom to an MCP-capable coding agent:
 }
 ```
 
-MCP tools:
+## How you see your errors
 
-- `list_projects`
-- `list_issues` (unresolved by default)
-- `get_issue`
-- `resolve_issue`
+- **Dashboard** — your Railway URL, log in with the admin token. Shows every unresolved error, newest first, with counts.
+- **Ask your agent** — "check error mom" once it's logged in or connected via MCP.
 
-## Issue lifecycle
+Nice things you don't have to think about:
 
-Events are normalized and fingerprinted from the error type, message shape, and top stack frames. A repeated fingerprint increments `quantity` instead of creating duplicate rows. Resolving records `fixedInRelease`; recurrence in that or a later semantic release reopens the issue as `regressed`. Raw history remains available while resolved issues stay out of the agent's default context.
+- The same crash happening 500 times shows as **one** issue with a count of 500.
+- Passwords, tokens, and API keys are scrubbed before anything is stored.
+- Fixed issues disappear from the default view; if a "fixed" bug comes back in a newer version it automatically reopens as **regressed**.
+- If your app is offline, errors queue up locally and send later. Tracking can never crash or slow the app.
 
-## Security model
+---
+
+## For developers
+
+<details>
+<summary>Repo layout, local dev, and manual setup</summary>
+
+### What ships
+
+- `apps/web`: Next.js dashboard, ingestion API, agent API, authentication, automatic PostgreSQL schema setup.
+- `packages/sdk` (`@kenkaiiii/error-mom`): automatic browser and Node.js capture with redaction, breadcrumbs, retries, durable queues.
+- `packages/cli` (`error-mom`): project setup, diagnostics, issue operations, MCP stdio server.
+- `packages/protocol`: the validated event contract shared by collectors and SDKs.
+
+### Run locally
+
+```bash
+cp .env.example apps/web/.env.local
+# Replace ERROR_MOM_ADMIN_TOKEN with at least 32 random characters.
+docker compose up -d
+pnpm install
+pnpm db:seed # optional: 3 projects and 9 realistic issues
+pnpm dev
+```
+
+Open `http://localhost:3000` and enter the admin token.
+
+### Manual SDK setup
+
+Browser (Vite shown):
+
+```ts
+import { initErrorMom } from "@kenkaiiii/error-mom";
+
+export const errorMom = initErrorMom({
+  server: import.meta.env.VITE_ERROR_MOM_SERVER,
+  projectKey: import.meta.env.VITE_ERROR_MOM_PROJECT_KEY,
+  environment: import.meta.env.MODE,
+  release: import.meta.env.VITE_APP_VERSION,
+});
+```
+
+Captures uncaught errors, unhandled rejections, `console.error`, failed network requests, and the 50 breadcrumbs preceding a failure. Events queue in local storage and retry without blocking the app.
+
+Node:
+
+```ts
+import { initErrorMom } from "@kenkaiiii/error-mom/node";
+
+export const errorMom = initErrorMom({
+  server: process.env.ERROR_MOM_SERVER!,
+  projectKey: process.env.ERROR_MOM_PROJECT_KEY!,
+  environment: process.env.NODE_ENV,
+  release: process.env.APP_VERSION,
+});
+```
+
+Node events append to `~/.error-mom/spool/*.jsonl` before upload; an outage cannot discard queued errors.
+
+### CLI
+
+```bash
+error-mom projects
+error-mom issues
+error-mom inspect issue_123
+error-mom resolve issue_123 --release 1.4.2
+error-mom doctor --project-key em_ingest_...
+```
+
+### Issue lifecycle
+
+Events are normalized and fingerprinted from the error type, message shape, and top stack frames. A repeated fingerprint increments `quantity` instead of creating duplicate rows. Resolving records `fixedInRelease`; recurrence in that or a later semantic release reopens the issue as `regressed`.
+
+### Security model
 
 - Project ingest keys are write-only, hashed in PostgreSQL, and shown once.
 - The dashboard and read/write agent API use a separate private admin token.
 - Known password, token, cookie, authorization, API-key, URL-secret, and email fields are redacted in both SDK and collector.
 - Browser ingest allows cross-origin writes because shipped browser keys are public by nature; those keys cannot read or resolve issues.
-- `.env.local`, local queues, and agent credentials are excluded from Git.
+- Doctor synthetic events are validated and rate-checked but never persisted as issues.
 
-## Verification
+### Verification
 
 ```bash
 pnpm check
@@ -167,6 +208,8 @@ pnpm test
 pnpm build
 pnpm format:check
 ```
+
+</details>
 
 ## License
 
