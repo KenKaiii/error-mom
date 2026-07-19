@@ -1,18 +1,20 @@
 {
   "name": "@kenkaiiii/error-mom",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Automatic browser and Node.js error capture for self-hosted Error Mom",
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./node": {
       "types": "./dist/node.d.ts",
-      "import": "./dist/node.js"
+      "import": "./dist/node.js",
+      "require": "./dist/node.cjs"
     }
   },
   "files": [
@@ -20,7 +22,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/node.ts --format esm --dts --clean",
+    "build": "tsup src/index.ts src/node.ts --format esm,cjs --dts --clean",
     "check": "tsc --noEmit",
     "test": "vitest run"
   },
@@ -34,5 +36,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "module": "./dist/index.js"
 }

@@ -1,7 +1,7 @@
 import type { Breadcrumb, ErrorEvent } from "@kenkaiiii/error-mom-protocol";
 
 export const SDK_NAME = "@kenkaiiii/error-mom";
-export const SDK_VERSION = "0.3.0";
+export const SDK_VERSION = "0.3.1";
 export const MAX_BREADCRUMBS = 50;
 
 const SECRET_KEY = /authorization|cookie|password|passwd|secret|token|api[-_]?key|session/i;
