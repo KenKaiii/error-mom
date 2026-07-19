@@ -207,9 +207,13 @@ export async function ingestEvents(projectId: string, events: ErrorEvent[]): Pro
       // across differently-minified builds. The raw stack is preserved below.
       const rawStack = event.error.stack;
       let stack = rawStack;
+      let symbolicated = false;
       if (event.release && rawStack) {
         const result = await symbolicateStack(transaction, projectId, event.release, rawStack);
-        if (result.symbolicated) stack = result.stack;
+        if (result.symbolicated) {
+          stack = result.stack;
+          symbolicated = true;
+        }
       }
 
       const fingerprint = fingerprintError(event.error.name, event.error.message, stack);
@@ -232,7 +236,11 @@ export async function ingestEvents(projectId: string, events: ErrorEvent[]): Pro
       const issueId = existing?.id ?? createIdentifier("issue");
       const regression =
         existing?.status === "resolved" && isRegression(existing.fixed_in_release, event.release);
-      const culprit = event.culprit ?? findCulprit(stack);
+      // A symbolicated frame beats the SDK's culprit, which was derived from
+      // the minified stack before maps were available.
+      const culprit = symbolicated
+        ? (findCulprit(stack) ?? event.culprit ?? null)
+        : (event.culprit ?? findCulprit(stack));
       const title = event.error.message.split("\n")[0]?.slice(0, 500) || event.error.name;
 
       if (existing) {

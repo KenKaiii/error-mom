@@ -76,6 +76,7 @@ describe.runIf(Boolean(databaseUrl))("issue ingestion with PostgreSQL", () => {
         timestamp: new Date().toISOString(),
         level: "error",
         error: { name: "TypeError", message: "boom failed", stack: rawStack },
+        culprit: "at t.xyz (https://example.com/assets/index-B2kj9.js:1:11)",
         environment: "production",
         release: "2.0.0",
         platform: "browser",
@@ -88,10 +89,12 @@ describe.runIf(Boolean(databaseUrl))("issue ingestion with PostgreSQL", () => {
 
     const issues = await listIssues({ projectId: project.id });
     expect(issues).toHaveLength(1);
+    // Symbolicated culprit wins over the SDK's minified culprit.
     expect(issues[0]?.culprit).toContain("src/main.ts:5:3");
 
     const detail = await getIssue(issues[0]!.id);
-    expect(detail?.samples[0]?.stack).toContain("at boom (src/main.ts:5:3)");
+    // Exact frame: indentation preserved, single "at", original fn/file/line.
+    expect(detail?.samples[0]?.stack).toContain("\n    at boom (src/main.ts:5:3)");
     expect(detail?.samples[0]?.context["rawStack"]).toBe(rawStack);
 
     // Same bug from a differently-minified build groups into the same issue.

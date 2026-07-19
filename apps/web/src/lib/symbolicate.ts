@@ -4,7 +4,7 @@ import type { Sql, TransactionSql } from "postgres";
 const MAX_FRAMES = 50;
 
 // V8: "    at fn (https://x/app-abc.js:1:234)" or "    at https://x/app-abc.js:1:234"
-const V8_FRAME = /^(\s*at\s+)(?:(.+?)\s+\()?(.+?):(\d+):(\d+)(\)?)\s*$/;
+const V8_FRAME = /^(\s*)at\s+(?:(.+?)\s+\()?(.+?):(\d+):(\d+)(\)?)\s*$/;
 // Firefox/Safari: "fn@https://x/app-abc.js:1:234" or "@https://x/app-abc.js:1:234"
 const GECKO_FRAME = /^(\s*)([^@\s]*)@(.+?):(\d+):(\d+)\s*$/;
 
