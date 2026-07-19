@@ -24,13 +24,21 @@ Open `http://localhost:3000` and enter the admin token. Create a project to rece
 
 ## Deploy to Railway
 
-1. Push this repository to GitHub.
-2. Create a Railway project from the repository.
-3. Add Railway PostgreSQL to the project.
-4. Set `DATABASE_URL` from PostgreSQL and generate `ERROR_MOM_ADMIN_TOKEN` with at least 32 random characters.
-5. Deploy. `railway.json` and `Dockerfile` provide the build, health check, and production server configuration.
+With the [Railway CLI](https://docs.railway.com/guides/cli) installed and logged in:
 
-Create a reusable Railway template from that project to turn the flow into one click for other users. Each user deploys one private Error Mom instance and creates as many app projects as needed inside it.
+```bash
+railway init --name error-mom
+railway add --database postgres
+railway add --service error-mom \
+  --variables 'DATABASE_URL=${{Postgres.DATABASE_URL}}' \
+  --variables "ERROR_MOM_ADMIN_TOKEN=$(openssl rand -hex 32)"
+railway up --service error-mom
+railway domain --service error-mom
+```
+
+That is the whole deployment. `railway.json` and `Dockerfile` provide the build, `/api/health` health check, and production server configuration. The schema is created automatically on first boot, and TLS is auto-disabled on Railway private networking (`*.railway.internal`). Save the generated `ERROR_MOM_ADMIN_TOKEN` — it is the dashboard login and agent credential.
+
+Prefer the dashboard? Create a project from your GitHub fork, add the PostgreSQL plugin, and set the same two variables on the web service. Each user deploys one private Error Mom instance and creates as many app projects as needed inside it.
 
 ## Browser setup
 

@@ -10,3 +10,4 @@ coverage/
 .gg/
 *.log
 .DS_Store
+.railway-admin-token.local
