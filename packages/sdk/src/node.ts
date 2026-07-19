@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { mkdir, readFile, rename, writeFile, appendFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -141,10 +142,29 @@ class NodeClient implements ErrorMomNode {
     const onRejection = (reason: unknown) => {
       this.captureError(reason, { culprit: "unhandledRejection" });
     };
+    // The spool append is async; a crash or hard shutdown right after capture
+    // can exit before the write lands on disk. "exit" is the last synchronous
+    // chance to persist the queue so the next process start uploads it.
+    const onExit = () => {
+      this.persistQueueSync();
+    };
     process.on("uncaughtExceptionMonitor", onUncaught);
     process.on("unhandledRejection", onRejection);
+    process.on("exit", onExit);
     this.handlers.push(() => process.off("uncaughtExceptionMonitor", onUncaught));
     this.handlers.push(() => process.off("unhandledRejection", onRejection));
+    this.handlers.push(() => process.off("exit", onExit));
+  }
+
+  private persistQueueSync(): void {
+    if (this.queue.length === 0) return;
+    try {
+      mkdirSync(this.options.spoolDirectory, { recursive: true });
+      const contents = this.queue.map((event) => JSON.stringify(event)).join("\n");
+      writeFileSync(this.spoolFile, `${contents}\n`, { mode: 0o600 });
+    } catch {
+      // Even at exit, capture must never throw into the host app.
+    }
   }
 
   private captureFetchFailures(): void {
