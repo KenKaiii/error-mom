@@ -47,6 +47,92 @@ describe.runIf(Boolean(databaseUrl))("issue ingestion with PostgreSQL", () => {
     expect(regressed?.quantity).toBe(4);
   });
 
+  it("symbolicates minified stacks with uploaded source maps before grouping", async () => {
+    const { createProject } = await import("./projects");
+    const { getIssue, ingestEvents, listIssues } = await import("./issues");
+    const { storeSourceMap } = await import("./sourcemaps");
+
+    const project = await createProject("Minified App");
+    // One mapping: generated 1:11 -> src/main.ts:5:3, name "boom" (VLQ "UAIEA").
+    const stored = await storeSourceMap({
+      projectId: project.slug,
+      release: "2.0.0",
+      fileName: "index-B2kj9.js",
+      map: {
+        version: 3,
+        file: "index-B2kj9.js",
+        sources: ["src/main.ts"],
+        names: ["boom"],
+        mappings: "UAIEA",
+      },
+    });
+    expect(stored.ok).toBe(true);
+
+    const rawStack =
+      "TypeError: boom failed\n    at t.xyz (https://example.com/assets/index-B2kj9.js:1:11)";
+    await ingestEvents(project.id, [
+      {
+        eventId: "5b1c8e12-0000-4000-8000-000000000042",
+        timestamp: new Date().toISOString(),
+        level: "error",
+        error: { name: "TypeError", message: "boom failed", stack: rawStack },
+        environment: "production",
+        release: "2.0.0",
+        platform: "browser",
+        runtime: "chrome",
+        breadcrumbs: [],
+        tags: {},
+        context: {},
+      },
+    ]);
+
+    const issues = await listIssues({ projectId: project.id });
+    expect(issues).toHaveLength(1);
+    expect(issues[0]?.culprit).toContain("src/main.ts:5:3");
+
+    const detail = await getIssue(issues[0]!.id);
+    expect(detail?.samples[0]?.stack).toContain("at boom (src/main.ts:5:3)");
+    expect(detail?.samples[0]?.context["rawStack"]).toBe(rawStack);
+
+    // Same bug from a differently-minified build groups into the same issue.
+    const otherBuildStored = await storeSourceMap({
+      projectId: project.id,
+      release: "2.0.1",
+      fileName: "index-Zz9q1.js",
+      map: {
+        version: 3,
+        file: "index-Zz9q1.js",
+        sources: ["src/main.ts"],
+        names: ["boom"],
+        mappings: "UAIEA",
+      },
+    });
+    expect(otherBuildStored.ok).toBe(true);
+    await ingestEvents(project.id, [
+      {
+        eventId: "5b1c8e12-0000-4000-8000-000000000043",
+        timestamp: new Date().toISOString(),
+        level: "error",
+        error: {
+          name: "TypeError",
+          message: "boom failed",
+          stack:
+            "TypeError: boom failed\n    at Q.ab (https://example.com/assets/index-Zz9q1.js:1:11)",
+        },
+        environment: "production",
+        release: "2.0.1",
+        platform: "browser",
+        runtime: "chrome",
+        breadcrumbs: [],
+        tags: {},
+        context: {},
+      },
+    ]);
+    const grouped = await listIssues({ projectId: project.id });
+    expect(grouped).toHaveLength(1);
+    expect(grouped[0]?.quantity).toBe(2);
+  });
+
   it("deletes a project and cascades issues, keys, and receipts", async () => {
     const { createProject, deleteProject } = await import("./projects");
     const { findProjectByIngestKey, ingestEvents, listIssues } = await import("./issues");

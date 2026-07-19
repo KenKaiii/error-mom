@@ -148,7 +148,16 @@ My admin token: MY_ADMIN_TOKEN
    printed in its nextAction output.
    Success = the response shows "accepted": 1 and "synthetic": 1. Doctor's
    test event is never shown as a real error, so my dashboard stays clean.
-6. Commit the changes and confirm to me it's all connected. The baked
+6. If this app ships minified builds (Vite, Next.js, etc.), make
+   production stacks readable: enable source maps in the build, then add
+   an upload step to the CI/release script right after the build:
+     error-mom login <server> --token $ERROR_MOM_ADMIN_TOKEN
+     error-mom sourcemaps <build dir> --release <app version> --project <slug>
+   The release flag must match the release the SDK reports. Put the admin
+   token in the CI secret store (e.g. ERROR_MOM_ADMIN_TOKEN) — it must
+   never live in the repo. Source map upload requires the admin token;
+   the write-only project key cannot upload maps.
+7. Commit the changes and confirm to me it's all connected. The baked
    project key is safe to commit (write-only), but my ADMIN token must
    never appear in git; check before committing.
 ```
@@ -176,7 +185,13 @@ Update this app's Error Mom integration to the latest version.
    - Handlers where a framework catches errors itself (queue/cron jobs,
      webhook routes, MCP tools) are wrapped with
      errorMom.wrap(fn, { culprit: "<name>" }).
-4. Verify with error-mom doctor, confirm the admin token is not in git
+4. If this app ships minified builds, add a source map upload step to the
+   CI/release script right after the build:
+     error-mom login <server> --token $ERROR_MOM_ADMIN_TOKEN
+     error-mom sourcemaps <build dir> --release <app version> --project <slug>
+   with the admin token from the CI secret store (never in the repo), so
+   production stacks show original file:line frames.
+5. Verify with error-mom doctor, confirm the admin token is not in git
    (the baked project key is fine, it is write-only), commit.
 ```
 

@@ -10,6 +10,7 @@ import semver from "semver";
 import { database, ensureSchema } from "./db";
 import { findCulprit, fingerprintError } from "./fingerprint";
 import { createIdentifier, redact, sha256 } from "./security";
+import { symbolicateStack } from "./symbolicate";
 
 interface IssueRow {
   id: string;
@@ -201,11 +202,17 @@ export async function ingestEvents(projectId: string, events: ErrorEvent[]): Pro
         RETURNING event_id
       `;
       if (receipt.length === 0) continue;
-      const fingerprint = fingerprintError(
-        event.error.name,
-        event.error.message,
-        event.error.stack,
-      );
+
+      // Symbolicate before fingerprinting so the same bug groups identically
+      // across differently-minified builds. The raw stack is preserved below.
+      const rawStack = event.error.stack;
+      let stack = rawStack;
+      if (event.release && rawStack) {
+        const result = await symbolicateStack(transaction, projectId, event.release, rawStack);
+        if (result.symbolicated) stack = result.stack;
+      }
+
+      const fingerprint = fingerprintError(event.error.name, event.error.message, stack);
       await transaction`
         SELECT pg_advisory_xact_lock(hashtextextended(${`${projectId}:${fingerprint}`}, 0))
       `;
@@ -225,7 +232,7 @@ export async function ingestEvents(projectId: string, events: ErrorEvent[]): Pro
       const issueId = existing?.id ?? createIdentifier("issue");
       const regression =
         existing?.status === "resolved" && isRegression(existing.fixed_in_release, event.release);
-      const culprit = event.culprit ?? findCulprit(event.error.stack);
+      const culprit = event.culprit ?? findCulprit(stack);
       const title = event.error.message.split("\n")[0]?.slice(0, 500) || event.error.name;
 
       if (existing) {
@@ -296,8 +303,8 @@ export async function ingestEvents(projectId: string, events: ErrorEvent[]): Pro
             ${createIdentifier("sample")}, ${issueId}, ${event.eventId}, ${event.timestamp},
             ${event.environment}, ${event.release ?? null}, ${event.platform}, ${event.runtime},
             ${event.installationId ? sha256(event.installationId) : null}, ${event.error.message},
-            ${event.error.stack ?? null}, ${transaction.json(event.breadcrumbs)},
-            ${transaction.json(JSON.parse(JSON.stringify(event.context)))}, ${transaction.json(event.tags)}
+            ${stack ?? null}, ${transaction.json(event.breadcrumbs)},
+            ${transaction.json(JSON.parse(JSON.stringify(sampleContext(event, rawStack, stack))))}, ${transaction.json(event.tags)}
           )
           ON CONFLICT (event_id) DO NOTHING
         `;
@@ -316,6 +323,15 @@ export async function resolveIssue(issueId: string, fixedInRelease: string): Pro
     RETURNING id
   `;
   return rows.length === 1;
+}
+
+function sampleContext(
+  event: ErrorEvent,
+  rawStack: string | undefined,
+  stack: string | undefined,
+): Record<string, unknown> {
+  if (rawStack && stack !== rawStack) return { ...event.context, rawStack };
+  return event.context;
 }
 
 function isRegression(fixedRelease: string | null, incomingRelease: string | undefined): boolean {

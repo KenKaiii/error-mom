@@ -91,4 +91,15 @@ CREATE TABLE IF NOT EXISTS issue_releases (
   last_seen timestamptz NOT NULL,
   PRIMARY KEY(issue_id, release)
 );
+
+CREATE TABLE IF NOT EXISTS release_sourcemaps (
+  project_id text NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  release text NOT NULL,
+  file_name text NOT NULL,
+  map jsonb NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY(project_id, release, file_name)
+);
+CREATE INDEX IF NOT EXISTS release_sourcemaps_project_release_idx
+  ON release_sourcemaps(project_id, release);
 `;

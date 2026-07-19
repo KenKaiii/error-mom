@@ -24,6 +24,9 @@ importers:
 
   apps/web:
     dependencies:
+      "@jridgewell/trace-mapping":
+        specifier: ^0.3.31
+        version: 0.3.31
       "@kenkaiiii/error-mom-protocol":
         specifier: workspace:*
         version: link:../../packages/protocol

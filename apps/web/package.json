@@ -13,6 +13,7 @@
     "db:seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
+    "@jridgewell/trace-mapping": "^0.3.31",
     "@kenkaiiii/error-mom-protocol": "workspace:*",
     "@sakun/system.css": "0.1.11",
     "lucide-react": "^1.25.0",

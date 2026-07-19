@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execFileSync } from "node:child_process";
-import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
+import { chmod, mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, join } from "node:path";
@@ -9,7 +9,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-const VERSION = "0.4.1";
+const VERSION = "0.5.0";
 const CONFIG_DIR = join(homedir(), ".error-mom");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
@@ -197,6 +197,50 @@ program
       wiring: framework.wiring,
       nextAction: `Wire it up: ${framework.wiring} If the app routes caught errors through a central handler or error-broadcast function, call errorMom.captureError(err) inside it — that is where framework-caught and LLM errors surface. For handlers where a framework catches errors itself (queue/cron jobs, webhooks, MCP tools), wrap each with errorMom.wrap(fn, { culprit: "<name>" }). The setup file has the write-only project key baked in (safe to commit; ERROR_MOM_* env vars override when set), so production builds report without any configuration. Then run error-mom doctor --project-key ${project.ingestKey}.`,
     });
+  });
+
+program
+  .command("sourcemaps")
+  .description("Upload production source maps so minified stacks symbolicate on ingest")
+  .argument("<dir>", "Build output directory containing *.map files (e.g. dist)")
+  .requiredOption("--release <release>", "Release the maps belong to (must match the SDK release)")
+  .requiredOption("--project <id-or-slug>", "Project id or slug")
+  .action(async (dir: string, options: { release: string; project: string }) => {
+    const config = await loadConfig();
+    const mapFiles = await findMapFiles(dir);
+    if (mapFiles.length === 0) {
+      throw new Error(`No .map files found under ${dir}. Build with source maps enabled first.`);
+    }
+    const uploaded: string[] = [];
+    const skipped: Array<{ file: string; reason: string }> = [];
+    for (const mapFile of mapFiles) {
+      const info = await stat(mapFile);
+      if (info.size > 20 * 1024 * 1024) {
+        skipped.push({ file: mapFile, reason: "larger than 20 MB" });
+        continue;
+      }
+      let map: unknown;
+      try {
+        map = JSON.parse(await readFile(mapFile, "utf8"));
+      } catch {
+        skipped.push({ file: mapFile, reason: "not valid JSON" });
+        continue;
+      }
+      // "app-abc123.js.map" symbolicates frames from "app-abc123.js".
+      const fileName = basename(mapFile).replace(/\.map$/, "");
+      try {
+        await request(config.server, config.adminToken, "/api/v1/sourcemaps", {
+          body: { projectId: options.project, release: options.release, fileName, map },
+        });
+        uploaded.push(fileName);
+      } catch (error) {
+        skipped.push({
+          file: mapFile,
+          reason: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+    print({ release: options.release, project: options.project, uploaded, skipped });
   });
 
 program
@@ -604,6 +648,25 @@ function syntheticEvent() {
     tags: { synthetic: "true" },
     context: {},
   };
+}
+
+async function findMapFiles(dir: string): Promise<string[]> {
+  const found: string[] = [];
+  let entries;
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch {
+    throw new Error(`Cannot read directory ${dir}.`);
+  }
+  for (const entry of entries) {
+    const fullPath = join(dir, entry.name);
+    if (entry.isDirectory() && entry.name !== "node_modules") {
+      found.push(...(await findMapFiles(fullPath)));
+    } else if (entry.isFile() && entry.name.endsWith(".map")) {
+      found.push(fullPath);
+    }
+  }
+  return found.sort();
 }
 
 function normalizeServer(server: string): string {
