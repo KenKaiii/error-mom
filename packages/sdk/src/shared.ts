@@ -5,7 +5,7 @@ import {
 } from "@kenkaiiii/error-mom-protocol";
 
 export const SDK_NAME = "@kenkaiiii/error-mom";
-export const SDK_VERSION = "0.3.2";
+export const SDK_VERSION = "0.3.3";
 export const MAX_BREADCRUMBS = 50;
 
 const SECRET_KEY = /authorization|cookie|password|passwd|secret|token|api[-_]?key|session/i;

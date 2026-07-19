@@ -58,7 +58,7 @@ describe("Node SDK", () => {
       events: [
         { eventId, error: { name: "Error", message: "Export failed" }, culprit: "video.export" },
       ],
-      sdk: { name: "@kenkaiiii/error-mom", version: "0.3.2" },
+      sdk: { name: "@kenkaiiii/error-mom", version: "0.3.3" },
     });
     const spoolFiles = await import("node:fs/promises").then(({ readdir }) =>
       readdir(spoolDirectory),
