@@ -4,6 +4,7 @@ import { isApiAuthenticated, unauthorized } from "@/lib/auth";
 import { listIssues } from "@/lib/issues";
 
 const STATUSES = new Set<IssueStatus | "unresolved" | "all">([
+  "observed",
   "open",
   "regressed",
   "resolved",
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest): Promise<Response> {
       {
         error: {
           code: "invalid_status",
-          message: "Use open, regressed, resolved, unresolved, or all.",
+          message: "Use observed, open, regressed, resolved, unresolved, or all.",
         },
       },
       { status: 400 },

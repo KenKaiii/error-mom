@@ -5,7 +5,7 @@ import {
 } from "@kenkaiiii/error-mom-protocol";
 
 export const SDK_NAME = "@kenkaiiii/error-mom";
-export const SDK_VERSION = "0.3.4";
+export const SDK_VERSION = "0.3.5";
 export const MAX_BREADCRUMBS = 50;
 
 const SECRET_KEY = /authorization|cookie|password|passwd|secret|token|api[-_]?key|session/i;
@@ -218,6 +218,7 @@ export function describeFailedRequest(
   const relevant = status >= 500 || (provider !== undefined && status >= 400);
   if (!relevant) return undefined;
   const cleanUrl = redactString(url);
+  const retryable = status === 408 || status === 429 || status >= 500;
   const error = new Error(`${method} ${cleanUrl} returned ${status}`);
   if (provider) {
     const label = provider.charAt(0).toUpperCase() + provider.slice(1);
@@ -230,7 +231,11 @@ export function describeFailedRequest(
       tags: {
         statusCode: String(status),
         method,
+        retryable: String(retryable),
         ...(provider ? { provider } : {}),
+      },
+      context: {
+        request: { method, url: cleanUrl, status, retryable },
       },
     },
   };

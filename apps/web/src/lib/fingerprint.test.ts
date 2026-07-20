@@ -29,6 +29,43 @@ describe("fingerprintError", () => {
     );
     expect(render).not.toBe(exportVideo);
   });
+
+  it("groups tool failures across changing orchestration stacks", () => {
+    const first = fingerprintError(
+      "Error",
+      "Tool grep failed",
+      "Error: Tool grep failed\n    at runAgent (app-sidecar.mjs:100:2)",
+      "tool.grep",
+    );
+    const second = fingerprintError(
+      "Error",
+      "Tool grep failed",
+      "Error: Tool grep failed\n    at driveAutopilotCycle (app-sidecar.mjs:900:8)",
+      "tool.grep",
+    );
+
+    expect(first).toBe(second);
+    expect(first).toBe(second);
+  });
+
+  it("can group operational failures across changing stacks", () => {
+    const first = fingerprintError(
+      "ProviderError",
+      "Usage limit reached",
+      "at fetchUsage (old-bundle.js:10:2)",
+      "app-sidecar.usage.fetch",
+      true,
+    );
+    const second = fingerprintError(
+      "ProviderError",
+      "Usage limit reached",
+      "at subscriptionUsage (new-bundle.js:900:8)",
+      "app-sidecar.usage.fetch",
+      true,
+    );
+
+    expect(first).toBe(second);
+  });
 });
 
 describe("normalizeStack", () => {

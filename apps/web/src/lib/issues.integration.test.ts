@@ -213,6 +213,65 @@ describe.runIf(Boolean(databaseUrl))("issue ingestion with PostgreSQL", () => {
     expect(detail?.samples[0]?.context.callback).toContain("/api-key/[REDACTED]/run");
     expect(detail?.samples[0]?.breadcrumbs[0]?.message).toContain("/services/[REDACTED]");
   });
+
+  it("observes operational noise and promotes it on the third occurrence", async () => {
+    const { createProject } = await import("./projects");
+    const { getIssue, ingestEvents, listIssues } = await import("./issues");
+    const project = await createProject("Noise Promotion");
+
+    await ingestEvents(project.id, [operationalEvent("10000000-0000-4000-8000-000000000001")]);
+    expect(await listIssues({ projectId: project.id })).toHaveLength(0);
+    const observed = await listIssues({ projectId: project.id, status: "observed" });
+    expect(observed).toHaveLength(1);
+    expect(observed[0]).toMatchObject({ status: "observed", quantity: 1 });
+    const detail = await getIssue(observed[0]!.id);
+    expect(detail?.samples[0]?.tags).toMatchObject({
+      errorMomClassification: "operational",
+      errorMomReason: "quota",
+      errorMomRetryable: "true",
+    });
+    expect(detail?.samples[0]?.context.errorMomTriage).toMatchObject({
+      classification: "operational",
+      promotionQuantity: 3,
+    });
+
+    await ingestEvents(project.id, [
+      operationalEvent("10000000-0000-4000-8000-000000000002"),
+      operationalEvent("10000000-0000-4000-8000-000000000003"),
+    ]);
+
+    expect(await listIssues({ projectId: project.id, status: "observed" })).toHaveLength(0);
+    expect(await listIssues({ projectId: project.id })).toEqual([
+      expect.objectContaining({ status: "open", quantity: 3 }),
+    ]);
+  });
+
+  it("groups tool failures across orchestration stack changes", async () => {
+    const { createProject } = await import("./projects");
+    const { ingestEvents, listIssues } = await import("./issues");
+    const project = await createProject("Tool Grouping");
+    const first = event("20000000-0000-4000-8000-000000000001", "1.0.0", 1, 10);
+    const second = event("20000000-0000-4000-8000-000000000002", "1.1.0", 2, 20);
+    first.error = {
+      name: "Error",
+      message: "Tool grep failed",
+      stack: "Error: Tool grep failed\n    at runAgent (app-sidecar.mjs:100:2)",
+    };
+    first.culprit = "tool.grep";
+    second.error = {
+      name: "Error",
+      message: "Tool grep failed",
+      stack: "Error: Tool grep failed\n    at driveAutopilotCycle (app-sidecar.mjs:900:8)",
+    };
+    second.culprit = "tool.grep";
+
+    await ingestEvents(project.id, [first, second]);
+
+    expect(await listIssues({ projectId: project.id })).toEqual([
+      expect.objectContaining({ title: "Tool grep failed", quantity: 2 }),
+    ]);
+  });
+
   it("deletes a project and cascades issues, keys, and receipts", async () => {
     const { createProject, deleteProject } = await import("./projects");
     const { findProjectByIngestKey, ingestEvents, listIssues } = await import("./issues");
@@ -250,6 +309,23 @@ function event(eventId: string, release: string, userId: number, line: number): 
     runtime: "node test",
     breadcrumbs: [],
     tags: {},
+    context: {},
+  };
+}
+
+function operationalEvent(eventId: string): ErrorEvent {
+  return {
+    eventId,
+    timestamp: new Date().toISOString(),
+    level: "error",
+    error: { name: "ProviderError", message: "Claude usage limit reached" },
+    culprit: "app-sidecar.autopilot-review-failed",
+    environment: "test",
+    release: "1.0.0",
+    platform: "linux",
+    runtime: "node test",
+    breadcrumbs: [],
+    tags: { provider: "anthropic", status: "429" },
     context: {},
   };
 }

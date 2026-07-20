@@ -596,6 +596,10 @@ label {
   text-transform: capitalize;
 }
 
+.status-observed {
+  color: #3f4854;
+  background: #e4e7eb;
+}
 .status-open {
   color: #8d291b;
   background: var(--incident-soft);
@@ -625,6 +629,10 @@ label {
   font-weight: 600;
 }
 
+.status-select-observed select {
+  color: #3f4854;
+  background: #e4e7eb;
+}
 .status-select-open select {
   color: #8d291b;
   background: var(--incident-soft);
@@ -721,6 +729,9 @@ label {
   padding-inline-start: 24px;
 }
 
+.detail-heading-observed {
+  border-color: var(--ink-muted);
+}
 .detail-heading-regressed {
   border-color: var(--regressed);
 }

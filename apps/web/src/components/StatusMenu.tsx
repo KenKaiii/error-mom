@@ -1,11 +1,12 @@
 "use client";
 
 import type { IssueStatus } from "@kenkaiiii/error-mom-protocol";
-import { CircleCheck } from "lucide-react";
+import { CircleCheck, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 
 const STATUS_LABELS = {
+  observed: "Observing",
   open: "Open",
   regressed: "Reopened",
   resolved: "Resolved",
@@ -63,6 +64,15 @@ export function StatusMenu({
     } finally {
       setPending(false);
     }
+  }
+
+  if (status === "observed") {
+    return (
+      <span className="status status-observed">
+        <Eye aria-hidden="true" size={14} />
+        {STATUS_LABELS.observed}
+      </span>
+    );
   }
 
   if (status === "resolved") {

@@ -93,6 +93,15 @@ describe("failed request policy", () => {
       provider: "anthropic",
       statusCode: "429",
       method: "POST",
+      retryable: "true",
+    });
+    expect(failure?.context.context).toEqual({
+      request: {
+        method: "POST",
+        url: "https://api.anthropic.com/v1/messages",
+        status: 429,
+        retryable: true,
+      },
     });
   });
 

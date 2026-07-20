@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS issues (
   title text NOT NULL,
   error_type text NOT NULL,
   culprit text,
-  status text NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'regressed', 'resolved')),
+  status text NOT NULL DEFAULT 'open' CHECK (status IN ('observed', 'open', 'regressed', 'resolved')),
   quantity bigint NOT NULL DEFAULT 1,
   first_seen timestamptz NOT NULL,
   last_seen timestamptz NOT NULL,
@@ -56,6 +56,10 @@ CREATE TABLE IF NOT EXISTS issues (
   updated_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE(project_id, fingerprint)
 );
+
+ALTER TABLE issues DROP CONSTRAINT IF EXISTS issues_status_check;
+ALTER TABLE issues ADD CONSTRAINT issues_status_check
+  CHECK (status IN ('observed', 'open', 'regressed', 'resolved'));
 
 CREATE INDEX IF NOT EXISTS issues_project_status_last_seen_idx
   ON issues(project_id, status, last_seen DESC);

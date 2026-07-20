@@ -104,7 +104,7 @@ Use `await errorMom.flush()` before a controlled shutdown. Call `dispose()` duri
 
 ## Automatic request capture
 
-Network failures and HTTP 5xx responses are captured automatically. Errors from known AI providers are named and tagged by provider; provider 4xx responses are captured as well.
+Network failures and HTTP 5xx responses are captured automatically. Errors from known AI providers are named and tagged by provider; provider 4xx responses are captured as well. Captured request failures include sanitized method, URL, status, provider, and retryability context.
 
 ## Privacy and safety
 

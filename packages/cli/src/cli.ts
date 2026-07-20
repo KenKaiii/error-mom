@@ -10,7 +10,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { associateMaps } from "./sourcemap-files.js";
 
-const VERSION = "0.7.1";
+const VERSION = "0.7.2";
 const CONFIG_DIR = join(homedir(), ".error-mom");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
@@ -75,7 +75,11 @@ program
   .command("issues")
   .description("List compact issue summaries; unresolved issues are returned by default")
   .option("--project <id>", "Filter by project ID")
-  .option("--status <status>", "unresolved, open, regressed, resolved, or all", "unresolved")
+  .option(
+    "--status <status>",
+    "unresolved, observed, open, regressed, resolved, or all",
+    "unresolved",
+  )
   .action(async (options: { project?: string; status: string }) => {
     const config = await loadConfig();
     const query = new URLSearchParams({ status: options.status });
@@ -336,7 +340,7 @@ async function runMcpServer(): Promise<void> {
       inputSchema: {
         projectId: z.string().optional(),
         status: z
-          .enum(["unresolved", "open", "regressed", "resolved", "all"])
+          .enum(["unresolved", "observed", "open", "regressed", "resolved", "all"])
           .default("unresolved"),
       },
     },

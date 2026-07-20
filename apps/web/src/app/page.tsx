@@ -16,6 +16,7 @@ export const metadata = {
 
 const VALID_STATUSES = new Set<IssueStatus | "unresolved" | "all">([
   "unresolved",
+  "observed",
   "open",
   "regressed",
   "resolved",
@@ -66,14 +67,14 @@ export default async function DashboardPage({
         </div>
 
         <nav className="status-tabs" aria-label="Issue status">
-          {(["unresolved", "regressed", "resolved", "all"] as const).map((item) => (
+          {(["unresolved", "observed", "regressed", "resolved", "all"] as const).map((item) => (
             <Link
-              key={item}
+              key={item.toString()}
               className={status === item ? "status-tab active" : "status-tab"}
               href={statusHref(item, selectedProject?.id)}
               aria-current={status === item ? "page" : undefined}
             >
-              {item === "regressed" ? "Reopened" : item}
+              {item === "regressed" ? "Reopened" : item === "observed" ? "Observing" : item}
             </Link>
           ))}
         </nav>

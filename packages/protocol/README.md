@@ -31,7 +31,7 @@ Exported types:
 - `ErrorEvent`
 - `EventBatch`
 - `ProjectSummary`
-- `IssueStatus`
+- `IssueStatus` (`observed`, `open`, `regressed`, or `resolved`)
 - `IssueSummary`
 - `IssueSample`
 - `IssueDetail`

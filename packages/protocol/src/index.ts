@@ -66,7 +66,7 @@ export type Breadcrumb = z.infer<typeof breadcrumbSchema>;
 export type ErrorEvent = z.infer<typeof errorEventSchema>;
 export type EventBatch = z.infer<typeof eventBatchSchema>;
 
-export type IssueStatus = "open" | "regressed" | "resolved";
+export type IssueStatus = "observed" | "open" | "regressed" | "resolved";
 
 export interface ProjectSummary {
   id: string;

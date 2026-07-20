@@ -11,6 +11,7 @@ import { database, ensureSchema } from "./db";
 import { findCulprit, fingerprintError } from "./fingerprint";
 import { createIdentifier, redact, sha256 } from "./security";
 import { symbolicateStack } from "./symbolicate";
+import { classifyEvent, OBSERVATION_PROMOTION_QUANTITY, type EventTriage } from "./triage";
 
 interface IssueRow {
   id: string;
@@ -216,7 +217,25 @@ export async function ingestEvents(projectId: string, events: ErrorEvent[]): Pro
         }
       }
 
-      const fingerprint = fingerprintError(event.error.name, event.error.message, stack);
+      // A symbolicated frame beats the SDK's culprit, which was derived from
+      // the minified stack before maps were available.
+      const culprit = symbolicated
+        ? (findCulprit(stack) ?? event.culprit ?? null)
+        : (event.culprit ?? findCulprit(stack));
+      const triage = classifyEvent(event);
+      event.tags = {
+        ...event.tags,
+        errorMomClassification: triage.classification,
+        errorMomReason: triage.reason,
+        errorMomRetryable: triage.retryable === null ? "unknown" : String(triage.retryable),
+      };
+      const fingerprint = fingerprintError(
+        event.error.name,
+        event.error.message,
+        stack,
+        culprit,
+        triage.classification === "operational",
+      );
       await transaction`
         SELECT pg_advisory_xact_lock(hashtextextended(${`${projectId}:${fingerprint}`}, 0))
       `;
@@ -236,11 +255,6 @@ export async function ingestEvents(projectId: string, events: ErrorEvent[]): Pro
       const issueId = existing?.id ?? createIdentifier("issue");
       const regression =
         existing?.status === "resolved" && isRegression(existing.fixed_in_release, event.release);
-      // A symbolicated frame beats the SDK's culprit, which was derived from
-      // the minified stack before maps were available.
-      const culprit = symbolicated
-        ? (findCulprit(stack) ?? event.culprit ?? null)
-        : (event.culprit ?? findCulprit(stack));
       const title = event.error.message.split("\n")[0]?.slice(0, 500) || event.error.name;
 
       if (existing) {
@@ -250,7 +264,13 @@ export async function ingestEvents(projectId: string, events: ErrorEvent[]): Pro
               title = ${title},
               error_type = ${event.error.name},
               culprit = COALESCE(${culprit}, culprit),
-              status = CASE WHEN ${regression} THEN 'regressed' ELSE status END,
+              status = CASE
+                WHEN ${regression} THEN 'regressed'
+                WHEN status = 'observed' AND (
+                  ${triage.classification === "actionable"} OR quantity + 1 >= ${OBSERVATION_PROMOTION_QUANTITY}
+                ) THEN 'open'
+                ELSE status
+              END,
               resolved_at = CASE WHEN ${regression} THEN NULL ELSE resolved_at END,
               latest_release = CASE
                 WHEN ${event.timestamp} >= last_seen THEN COALESCE(${event.release ?? null}, latest_release)
@@ -268,7 +288,7 @@ export async function ingestEvents(projectId: string, events: ErrorEvent[]): Pro
             status, quantity, first_seen, last_seen, latest_release
           ) VALUES (
             ${issueId}, ${projectId}, ${fingerprint}, ${title}, ${event.error.name}, ${culprit},
-            'open', 1, ${event.timestamp}, ${event.timestamp}, ${event.release ?? null}
+            ${triage.initialStatus}, 1, ${event.timestamp}, ${event.timestamp}, ${event.release ?? null}
           )
         `;
       }
@@ -312,7 +332,7 @@ export async function ingestEvents(projectId: string, events: ErrorEvent[]): Pro
             ${event.environment}, ${event.release ?? null}, ${event.platform}, ${event.runtime},
             ${event.installationId ? sha256(event.installationId) : null}, ${event.error.message},
             ${stack ?? null}, ${transaction.json(event.breadcrumbs)},
-            ${transaction.json(JSON.parse(JSON.stringify(sampleContext(event, rawStack, stack))))}, ${transaction.json(event.tags)}
+            ${transaction.json(JSON.parse(JSON.stringify(sampleContext(event, rawStack, stack, triage))))}, ${transaction.json(event.tags)}
           )
           ON CONFLICT (event_id) DO NOTHING
         `;
@@ -337,9 +357,18 @@ function sampleContext(
   event: ErrorEvent,
   rawStack: string | undefined,
   stack: string | undefined,
+  triage: EventTriage,
 ): Record<string, unknown> {
-  if (rawStack && stack !== rawStack) return { ...event.context, rawStack };
-  return event.context;
+  return {
+    ...event.context,
+    ...(rawStack && stack !== rawStack ? { rawStack } : {}),
+    errorMomTriage: {
+      classification: triage.classification,
+      reason: triage.reason,
+      retryable: triage.retryable,
+      promotionQuantity: OBSERVATION_PROMOTION_QUANTITY,
+    },
+  };
 }
 
 function isRegression(fixedRelease: string | null, incomingRelease: string | undefined): boolean {

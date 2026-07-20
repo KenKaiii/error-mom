@@ -1,6 +1,6 @@
 {
   "name": "@kenkaiiii/error-mom-protocol",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Shared event protocol for Error Mom",
   "type": "module",
   "main": "./dist/index.js",

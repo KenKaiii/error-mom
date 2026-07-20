@@ -27,9 +27,20 @@ export function normalizeStack(stack: string | undefined): string {
     .join("\n");
 }
 
-export function fingerprintError(name: string, message: string, stack?: string): string {
-  const normalizedStack = normalizeStack(stack);
-  const material = [name.toLowerCase(), normalizeDynamicText(message), normalizedStack].join("\n");
+export function fingerprintError(
+  name: string,
+  message: string,
+  stack?: string,
+  culprit?: string | null,
+  stableAcrossStacks = false,
+): string {
+  const normalizedName = name.toLowerCase();
+  const normalizedMessage = normalizeDynamicText(message);
+  const normalizedCulprit = normalizeDynamicText(culprit ?? "");
+  const material =
+    stableAcrossStacks || normalizedCulprit.startsWith("tool.")
+      ? [normalizedName, normalizedMessage, normalizedCulprit].join("\n")
+      : [normalizedName, normalizedMessage, normalizeStack(stack)].join("\n");
   return createHash("sha256").update(material).digest("hex");
 }
 
