@@ -67,18 +67,43 @@ export async function listProjects(): Promise<ProjectSummary[]> {
   }));
 }
 
+export interface IssueFilters {
+  projectId?: string;
+  status?: IssueStatus | "unresolved" | "all";
+}
+
+export async function summarizeIssues(
+  filters: IssueFilters = {},
+): Promise<{ total: number; occurrences: number }> {
+  await ensureSchema();
+  const sql = database();
+  const status = filters.status ?? "unresolved";
+  const projectId = filters.projectId ?? null;
+  const rows = await sql<Array<{ total: string; occurrences: string }>>`
+    SELECT count(*)::text AS total, coalesce(sum(i.quantity), 0)::text AS occurrences
+    FROM issues i
+    WHERE (${projectId}::text IS NULL OR i.project_id = ${projectId})
+      AND (
+        ${status} = 'all'
+        OR (${status} = 'unresolved' AND i.status IN ('open', 'regressed'))
+        OR i.status = ${status}
+      )
+  `;
+  return {
+    total: Number(rows[0]?.total ?? 0),
+    occurrences: Number(rows[0]?.occurrences ?? 0),
+  };
+}
+
 export async function listIssues(
-  filters: {
-    projectId?: string;
-    status?: IssueStatus | "unresolved" | "all";
-    limit?: number;
-  } = {},
+  filters: IssueFilters & { limit?: number; offset?: number } = {},
 ): Promise<IssueSummary[]> {
   await ensureSchema();
   const sql = database();
   const status = filters.status ?? "unresolved";
   const projectId = filters.projectId ?? null;
   const limit = Math.min(Math.max(filters.limit ?? 100, 1), 500);
+  const offset = Math.max(filters.offset ?? 0, 0);
   const rows = await sql<IssueRow[]>`
     SELECT i.id, i.project_id, p.name AS project_name, i.fingerprint, i.title, i.error_type,
       i.culprit, i.status, i.quantity::text, i.first_seen, i.last_seen,
@@ -95,6 +120,7 @@ export async function listIssues(
       CASE i.status WHEN 'regressed' THEN 0 WHEN 'open' THEN 1 ELSE 2 END,
       i.last_seen DESC
     LIMIT ${limit}
+    OFFSET ${offset}
   `;
   return rows.map(mapIssue);
 }

@@ -198,10 +198,12 @@ label {
 /* Dashboard */
 
 .dashboard-shell {
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   display: grid;
   grid-template-columns: 252px minmax(0, 1fr);
   grid-template-rows: 72px minmax(0, 1fr);
+  overflow: hidden;
 }
 
 .app-header {
@@ -245,11 +247,13 @@ label {
 
 .project-rail {
   min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 18px;
   border-inline-end: 1px solid var(--line);
   padding: 24px 16px;
+  overflow: auto;
   background: #ece8df;
 }
 
@@ -389,7 +393,11 @@ label {
 
 .dashboard-main {
   min-width: 0;
-  padding: 36px clamp(24px, 4vw, 56px) 64px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 36px clamp(24px, 4vw, 56px) 32px;
+  overflow: hidden;
 }
 
 .queue-header {
@@ -464,12 +472,22 @@ label {
   border-color: var(--incident);
 }
 
-.issue-table-wrap {
+.issue-list-panel {
+  min-height: 0;
+  flex: 1 1 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: 0 8px 30px rgb(46 39 28 / 5%);
+}
+
+.issue-table-wrap {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .issue-table {
@@ -479,6 +497,9 @@ label {
 }
 
 .issue-table th {
+  position: sticky;
+  z-index: 1;
+  inset-block-start: 0;
   height: 42px;
   padding: 0 16px;
   color: var(--ink-muted);
@@ -504,6 +525,69 @@ label {
 
 .issue-table th:nth-child(4) {
   width: 10%;
+}
+
+.pagination {
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-block-start: 1px solid var(--line);
+  padding: 8px 12px 8px 18px;
+  background: var(--surface-strong);
+}
+
+.pagination-summary {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.pagination-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pagination-link,
+.pagination-page {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: var(--radius-sm);
+  padding-inline: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pagination-link {
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  background: var(--surface);
+  text-decoration: none;
+  transition:
+    border-color 160ms var(--ease),
+    background-color 160ms var(--ease);
+}
+
+.pagination-link:hover {
+  border-color: #878075;
+  background: #f7f3eb;
+}
+
+.pagination-link.disabled {
+  color: var(--ink-muted);
+  background: #ebe7df;
+  opacity: 0.62;
+}
+
+.pagination-page {
+  color: var(--ink-muted);
 }
 
 .issue-table td {
@@ -1007,10 +1091,15 @@ label {
   }
 
   .dashboard-shell {
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: auto;
     display: block;
+    overflow: visible;
   }
 
   .app-header {
+    grid-row: 1;
     position: sticky;
     inset-block-start: 0;
     display: flex;
@@ -1026,6 +1115,7 @@ label {
   }
 
   .project-rail {
+    grid-row: 2;
     border-inline-end: 0;
     border-block-end: 1px solid var(--line);
     padding: 16px 20px;
@@ -1038,7 +1128,24 @@ label {
   }
 
   .dashboard-main {
-    padding-block-start: 28px;
+    display: block;
+    padding-block: 28px 96px;
+    overflow: visible;
+  }
+
+  .issue-list-panel {
+    display: block;
+    overflow: visible;
+  }
+
+  .pagination {
+    position: fixed;
+    z-index: 4;
+    inset-inline: 20px;
+    inset-block-end: 16px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    box-shadow: 0 12px 36px rgb(46 39 28 / 18%);
   }
 
   .queue-header {
@@ -1110,7 +1217,7 @@ label {
   }
 
   .dashboard-main {
-    padding: 26px 16px 48px;
+    padding: 26px 16px 140px;
   }
 
   .queue-header {
@@ -1140,11 +1247,38 @@ label {
     font-size: 16px;
   }
 
+  .issue-list-panel {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
   .issue-table-wrap {
     overflow: visible;
     border: 0;
     background: transparent;
     box-shadow: none;
+  }
+
+  .pagination {
+    min-height: 108px;
+    inset-block-end: 76px;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 10px;
+  }
+
+  .pagination-summary {
+    text-align: center;
+  }
+
+  .pagination-actions {
+    width: 100%;
+  }
+
+  .pagination-page {
+    flex: 1;
   }
 
   .issue-table,
@@ -1267,6 +1401,21 @@ label {
     color: var(--ink);
     background-color: var(--surface-strong);
     border-color: var(--line-strong);
+  }
+}
+
+@media (max-width: 420px) {
+  .pagination-link {
+    width: 44px;
+    padding-inline: 0;
+  }
+
+  .pagination-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
 }
 
