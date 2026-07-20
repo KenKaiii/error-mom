@@ -37,7 +37,7 @@ error-mom inspect <issue-id> --samples 5
 error-mom resolve <issue-id> --release 1.4.2
 ```
 
-Operational quota and transient failures begin in `observed` status and promote to `open` after three occurrences. The default unresolved list returns `open` and `regressed` issues; request `--status observed` to inspect low-volume noise. Resolved issues stay hidden by default. If the same issue returns in the fixed release or a newer release, Error Mom marks it as regressed.
+Operational quota and transient failures plus low-volume tool failures begin in `observed` status and promote to `open` after three occurrences. The default unresolved list returns `open` and `regressed` issues; request `--status observed` to inspect low-volume noise. Resolved issues stay hidden by default. If the same issue returns in the fixed release or a newer release, Error Mom marks it as regressed.
 
 Permanently deleting a project also deletes its issues, samples, ingest keys, and receipts:
 

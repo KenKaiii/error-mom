@@ -267,8 +267,9 @@ describe.runIf(Boolean(databaseUrl))("issue ingestion with PostgreSQL", () => {
 
     await ingestEvents(project.id, [first, second]);
 
-    expect(await listIssues({ projectId: project.id })).toEqual([
-      expect.objectContaining({ title: "Tool grep failed", quantity: 2 }),
+    expect(await listIssues({ projectId: project.id })).toHaveLength(0);
+    expect(await listIssues({ projectId: project.id, status: "observed" })).toEqual([
+      expect.objectContaining({ title: "Tool grep failed", status: "observed", quantity: 2 }),
     ]);
   });
 

@@ -34,18 +34,27 @@ describe("classifyEvent", () => {
         }),
       ),
     ).toMatchObject({ classification: "operational", reason: "transient" });
+    expect(
+      classifyEvent(
+        event({
+          message: "fetch failed",
+          error: { name: "SubscriptionUsageError", message: "fetch failed" },
+        }),
+      ),
+    ).toMatchObject({ classification: "operational", reason: "transient" });
     expect(classifyEvent(event({ message: "[telegram] Poll error: fetch failed" }))).toMatchObject({
       classification: "operational",
       reason: "transient",
     });
   });
 
-  it("keeps provider request and tool failures actionable", () => {
+  it("keeps provider requests actionable and observes low-volume tool failures", () => {
     expect(
       classifyEvent(event({ message: "Bad Request", tags: { provider: "openai", status: "400" } })),
     ).toMatchObject({ classification: "actionable", reason: "provider_request", retryable: false });
     expect(classifyEvent(event({ message: "Tool ls failed", culprit: "tool.ls" }))).toMatchObject({
-      classification: "actionable",
+      classification: "operational",
+      initialStatus: "observed",
       reason: "tool_failure",
     });
   });
