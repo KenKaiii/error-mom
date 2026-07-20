@@ -19,11 +19,11 @@
   "devDependencies": {
     "@types/node": "^24.0.0",
     "prettier": "^3.8.0",
-    "typescript": "5.9.3"
+    "typescript": "7.0.2"
   },
   "pnpm": {
     "overrides": {
-      "typescript": "5.9.3",
+      "typescript": "7.0.2",
       "postcss": ">=8.5.10",
       "esbuild": ">=0.28.1"
     }
