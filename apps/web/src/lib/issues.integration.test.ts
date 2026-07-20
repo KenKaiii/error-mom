@@ -273,6 +273,30 @@ describe.runIf(Boolean(databaseUrl))("issue ingestion with PostgreSQL", () => {
     ]);
   });
 
+  it("returns a resolved operational issue to observed instead of regressed", async () => {
+    const { createProject } = await import("./projects");
+    const { getIssue, ingestEvents, listIssues, resolveIssue } = await import("./issues");
+    const project = await createProject("Operational Recurrence");
+
+    await ingestEvents(project.id, [operationalEvent("30000000-0000-4000-8000-000000000001")]);
+    const observed = await listIssues({ projectId: project.id, status: "observed" });
+    expect(observed).toHaveLength(1);
+    const issueId = observed[0]!.id;
+    await resolveIssue(issueId, "1.0.0");
+    expect((await getIssue(issueId))?.status).toBe("resolved");
+
+    await ingestEvents(project.id, [operationalEvent("30000000-0000-4000-8000-000000000002")]);
+
+    const afterRecurrence = await getIssue(issueId);
+    expect(afterRecurrence?.status).toBe("observed");
+    expect(afterRecurrence?.quantity).toBe(2);
+
+    await ingestEvents(project.id, [operationalEvent("30000000-0000-4000-8000-000000000003")]);
+    const afterPromotion = await getIssue(issueId);
+    expect(afterPromotion?.status).toBe("open");
+    expect(afterPromotion?.quantity).toBe(3);
+  });
+
   it("deletes a project and cascades issues, keys, and receipts", async () => {
     const { createProject, deleteProject } = await import("./projects");
     const { findProjectByIngestKey, ingestEvents, listIssues } = await import("./issues");

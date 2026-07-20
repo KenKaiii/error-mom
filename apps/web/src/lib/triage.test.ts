@@ -46,6 +46,14 @@ describe("classifyEvent", () => {
       classification: "operational",
       reason: "transient",
     });
+    expect(
+      classifyEvent(
+        event({
+          message: "usage limit reached: Insufficient account balance",
+          tags: { status: "402", provider: "xiaomi" },
+        }),
+      ),
+    ).toMatchObject({ classification: "operational", reason: "quota" });
   });
 
   it("keeps provider requests actionable and observes low-volume tool failures", () => {

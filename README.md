@@ -327,7 +327,7 @@ error-mom doctor --project-key em_ingest_...
 
 Events are normalized and fingerprinted from the error type, message shape, and top stack frames. Tool failures use their stable `tool.*` culprit instead of orchestration frames, so app releases do not split one failure into duplicates. A repeated fingerprint increments `quantity` instead of creating duplicate rows.
 
-Expected quota, transient polling or subscription-usage failures, and low-volume tool failures begin as `observed`, stay out of the default unresolved queue, and promote to `open` on their third occurrence. Samples include collector triage tags and retryability context. Resolving records `fixedInRelease`; recurrence in that or a later semantic release reopens the issue as `regressed`.
+Expected quota, transient polling or subscription-usage failures, and low-volume tool failures begin as `observed`, stay out of the default unresolved queue, and promote to `open` on their third occurrence. Samples include collector triage tags and retryability context. Resolving records `fixedInRelease`; recurrence of an actionable issue in that or a later semantic release reopens it as `regressed`. Recurrence of an operational issue instead returns it to `observed` (or `open` once past the promotion bar), since expected noise recurring after a fix is not a shipped regression.
 
 ### Security model
 

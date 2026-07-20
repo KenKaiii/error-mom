@@ -244,17 +244,35 @@ export async function ingestEvents(projectId: string, events: ErrorEvent[]): Pro
           id: string;
           status: IssueStatus;
           fixed_in_release: string | null;
+          quantity: string;
         }>
       >`
-        SELECT id, status, fixed_in_release
+        SELECT id, status, fixed_in_release, quantity::text
         FROM issues
         WHERE project_id = ${projectId} AND fingerprint = ${fingerprint}
         FOR UPDATE
       `;
       const existing = existingRows[0];
       const issueId = existing?.id ?? createIdentifier("issue");
-      const regression =
+      const recurrence =
         existing?.status === "resolved" && isRegression(existing.fixed_in_release, event.release);
+      // Recurrence of an operational issue (quota, transient, low-volume tool
+      // failure) is expected noise, not a shipped regression: it returns to
+      // observed (or open if already past the promotion bar) instead of
+      // flagging a fix as regressed.
+      const nextStatus = !existing
+        ? triage.initialStatus
+        : recurrence
+          ? triage.classification === "actionable"
+            ? "regressed"
+            : Number(existing.quantity) + 1 >= OBSERVATION_PROMOTION_QUANTITY
+              ? "open"
+              : "observed"
+          : existing.status === "observed" &&
+              (triage.classification === "actionable" ||
+                Number(existing.quantity) + 1 >= OBSERVATION_PROMOTION_QUANTITY)
+            ? "open"
+            : existing.status;
       const title = event.error.message.split("\n")[0]?.slice(0, 500) || event.error.name;
 
       if (existing) {
@@ -264,14 +282,8 @@ export async function ingestEvents(projectId: string, events: ErrorEvent[]): Pro
               title = ${title},
               error_type = ${event.error.name},
               culprit = COALESCE(${culprit}, culprit),
-              status = CASE
-                WHEN ${regression} THEN 'regressed'
-                WHEN status = 'observed' AND (
-                  ${triage.classification === "actionable"} OR quantity + 1 >= ${OBSERVATION_PROMOTION_QUANTITY}
-                ) THEN 'open'
-                ELSE status
-              END,
-              resolved_at = CASE WHEN ${regression} THEN NULL ELSE resolved_at END,
+              status = ${nextStatus},
+              resolved_at = CASE WHEN ${recurrence} THEN NULL ELSE resolved_at END,
               latest_release = CASE
                 WHEN ${event.timestamp} >= last_seen THEN COALESCE(${event.release ?? null}, latest_release)
                 ELSE latest_release

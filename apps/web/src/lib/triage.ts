@@ -15,7 +15,13 @@ export function classifyEvent(event: ErrorEvent): EventTriage {
   const message = event.error.message;
   const culprit = event.culprit ?? "";
 
-  if (status === 429) return operational("quota", true);
+  const quotaExhausted =
+    status === 429 ||
+    status === 402 ||
+    /usage limit reached|insufficient (?:account )?balance|insufficient.{0,20}credit/i.test(
+      message,
+    );
+  if (quotaExhausted) return operational("quota", true);
 
   const subscriptionUsageFailure = event.error.name === "SubscriptionUsageError";
   const pollingFailure =
