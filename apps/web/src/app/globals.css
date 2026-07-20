@@ -1127,7 +1127,17 @@ label {
   }
 
   .status-tabs {
-    overflow-x: auto;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    overflow: visible;
+    border: 1px solid var(--line);
+  }
+
+  .status-tab {
+    justify-content: center;
+    padding-inline: 6px;
+    font-size: 16px;
   }
 
   .issue-table-wrap {
