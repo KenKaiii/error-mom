@@ -93,12 +93,12 @@ export function IssueTable({
         </p>
         <div className="pagination-actions">
           {previousHref ? (
-            <Link className="pagination-link" href={previousHref} rel="prev">
+            <Link className="button pagination-link" href={previousHref} rel="prev">
               <ChevronLeft aria-hidden="true" size={17} />
               <span className="pagination-label">Previous</span>
             </Link>
           ) : (
-            <span className="pagination-link disabled" aria-disabled="true">
+            <span className="button pagination-link disabled" aria-disabled="true">
               <ChevronLeft aria-hidden="true" size={17} />
               <span className="pagination-label">Previous</span>
             </span>
@@ -107,12 +107,12 @@ export function IssueTable({
             Page {formatQuantity(page)} of {formatQuantity(pageCount)}
           </span>
           {nextHref ? (
-            <Link className="pagination-link" href={nextHref} rel="next">
+            <Link className="button pagination-link" href={nextHref} rel="next">
               <span className="pagination-label">Next</span>
               <ChevronRight aria-hidden="true" size={17} />
             </Link>
           ) : (
-            <span className="pagination-link disabled" aria-disabled="true">
+            <span className="button pagination-link disabled" aria-disabled="true">
               <span className="pagination-label">Next</span>
               <ChevronRight aria-hidden="true" size={17} />
             </span>

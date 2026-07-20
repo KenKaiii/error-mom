@@ -551,43 +551,28 @@ label {
   gap: 6px;
 }
 
-.pagination-link,
-.pagination-page {
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  border-radius: var(--radius-sm);
-  padding-inline: 12px;
-  font-size: 16px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
 .pagination-link {
-  border: 1px solid var(--line-strong);
-  color: var(--ink);
-  background: var(--surface);
-  text-decoration: none;
-  transition:
-    border-color 160ms var(--ease),
-    background-color 160ms var(--ease);
-}
-
-.pagination-link:hover {
-  border-color: #878075;
-  background: #f7f3eb;
+  white-space: nowrap;
 }
 
 .pagination-link.disabled {
   color: var(--ink-muted);
   background: #ebe7df;
+  cursor: default;
   opacity: 0.62;
 }
 
 .pagination-page {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  padding-inline: 12px;
   color: var(--ink-muted);
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .issue-table td {
