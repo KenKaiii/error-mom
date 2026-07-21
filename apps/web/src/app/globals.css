@@ -198,6 +198,8 @@ label {
 /* Dashboard */
 
 .dashboard-shell {
+  position: fixed;
+  inset: 0;
   height: 100vh;
   height: 100dvh;
   display: grid;
@@ -1081,6 +1083,7 @@ label {
   }
 
   .dashboard-shell {
+    position: static;
     min-height: 100vh;
     min-height: 100dvh;
     height: auto;

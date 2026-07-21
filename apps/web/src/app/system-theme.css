@@ -51,32 +51,39 @@ body {
    ink spans x 1.4-19.25 of a 22px box) and carry asymmetric border bars.
    Replace them with redrawn arrows centered at exactly x=11, stretched to
    fill the button so the border always meets the window edges. */
-::-webkit-scrollbar-button:vertical:start {
+::-webkit-scrollbar-button:vertical:start:decrement {
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='22' height='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23fff' stroke='%23000' d='M.5.5h21v22.375H.5z'/%3E%3Cpath fill='%23000' d='M1 23h20v-2H1z'/%3E%3Cpolygon points='11,3.5 18,10.5 14.5,10.5 14.5,18 7.5,18 7.5,10.5 4,10.5' fill='%23fff' stroke='%23000' stroke-width='1.4'/%3E%3C/svg%3E");
   background-position: center;
   background-repeat: no-repeat;
   background-size: 100% 100%;
 }
 
-::-webkit-scrollbar-button:vertical:start:active {
+::-webkit-scrollbar-button:vertical:start:decrement:active {
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='22' height='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23fff' stroke='%23000' d='M.5.5h21v22.375H.5z'/%3E%3Cpath fill='%23000' d='M1 23h20v-2H1z'/%3E%3Cpolygon points='11,3.5 18,10.5 14.5,10.5 14.5,18 7.5,18 7.5,10.5 4,10.5' fill='%23000' stroke='%23000' stroke-width='1.4'/%3E%3C/svg%3E");
   background-position: center;
   background-repeat: no-repeat;
   background-size: 100% 100%;
 }
 
-::-webkit-scrollbar-button:vertical:end {
+::-webkit-scrollbar-button:vertical:end:increment {
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='22' height='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23fff' stroke='%23000' d='M.5 22.875h21V.5H.5z'/%3E%3Cpath fill='%23000' d='M1 .375h20v2H1z'/%3E%3Cpolygon points='11,19.875 4,12.875 7.5,12.875 7.5,5.375 14.5,5.375 14.5,12.875 18,12.875' fill='%23fff' stroke='%23000' stroke-width='1.4'/%3E%3C/svg%3E");
   background-position: center;
   background-repeat: no-repeat;
   background-size: 100% 100%;
 }
 
-::-webkit-scrollbar-button:vertical:end:active {
+::-webkit-scrollbar-button:vertical:end:increment:active {
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='22' height='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23fff' stroke='%23000' d='M.5 22.875h21V.5H.5z'/%3E%3Cpath fill='%23000' d='M1 .375h20v2H1z'/%3E%3Cpolygon points='11,19.875 4,12.875 7.5,12.875 7.5,5.375 14.5,5.375 14.5,12.875 18,12.875' fill='%23000' stroke='%23000' stroke-width='1.4'/%3E%3C/svg%3E");
   background-position: center;
   background-repeat: no-repeat;
   background-size: 100% 100%;
+}
+
+::-webkit-scrollbar-button:vertical:start:increment,
+::-webkit-scrollbar-button:vertical:end:decrement {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 ::selection {
