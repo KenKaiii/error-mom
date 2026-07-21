@@ -31,7 +31,7 @@ export default async function IssuePage({ params }: { params: Promise<{ id: stri
 
       <ProjectRail projects={projects} selectedProjectId={issue.projectId} />
 
-      <section className="dashboard-main" aria-label="Issue detail">
+      <section className="dashboard-main detail-main" aria-label="Issue detail">
         <div className="detail-toolbar">
           <Link href={`/?project=${issue.projectId}`} className="button back-link">
             <ArrowLeft aria-hidden="true" size={18} />
