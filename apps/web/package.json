@@ -19,22 +19,22 @@
     "lucide-react": "^1.25.0",
     "next": "16.2.10",
     "postgres": "^3.4.9",
-    "react": "19.2.7",
-    "react-dom": "19.2.7",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
     "semver": "^7.7.4",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
-    "@types/react": "^19.2.0",
-    "@types/react-dom": "^19.2.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
     "@types/semver": "^7.7.1",
-    "esbuild": ">=0.28.1",
+    "esbuild": ">=0.28.2",
     "playwright": "^1.61.1",
     "rollup": "^4.62.2",
-    "tsx": "^4.21.0",
+    "tsx": "^4.23.12",
     "vite": "^8.1.5",
-    "vitest": "^4.1.10",
+    "vitest": "^4.1.11",
     "webpack": "^5.108.4"
   }
 }
