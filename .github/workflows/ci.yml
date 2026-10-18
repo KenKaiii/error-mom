@@ -27,7 +27,7 @@ jobs:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/error_mom_test
       ERROR_MOM_ADMIN_TOKEN: ci-admin-token-with-at-least-32-characters
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
         with:
           version: 10.17.1
