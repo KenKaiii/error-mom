@@ -28,7 +28,7 @@ jobs:
       ERROR_MOM_ADMIN_TOKEN: ci-admin-token-with-at-least-32-characters
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 10.17.1
       - uses: actions/setup-node@v4
