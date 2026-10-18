@@ -17,7 +17,7 @@
     "db:seed": "pnpm --filter error-mom-web db:seed"
   },
   "devDependencies": {
-    "@types/node": "^24.0.0",
+    "@types/node": "^26.1.1",
     "prettier": "^3.8.0",
     "typescript": "5.9.3"
   },
