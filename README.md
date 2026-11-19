@@ -21,7 +21,7 @@ No Sentry subscription, no per-seat pricing, no data on someone else's cloud. On
 
 > [!TIP]
 > **Want to build your own apps with AI?**
-> - **Raid+:** make money with AI, a sellable app in 30 days, live every Thursday: [skool.com/kenkai](https://www.skool.com/kenkai)
+> - **Raid+:** land your first paying client in 90 days or your money back, plus private tools you won't find anywhere else: [skool.com/kenkai](https://www.skool.com/kenkai)
 > - **Want it built for you?** [work.kenkais.com](https://work.kenkais.com/)
 
 ---
@@ -258,7 +258,7 @@ Nice things you don't have to think about:
 ## 👥 Community
 
 - **YouTube**: [@kenkaidoesai](https://youtube.com/@kenkaidoesai) for tutorials and demos
-- **Raid+**: [skool.com/kenkai](https://www.skool.com/kenkai), make money with AI, a sellable app in 30 days, live every Thursday
+- **Raid+**: [skool.com/kenkai](https://www.skool.com/kenkai), first paying client in 90 days or your money back, plus private tools
 - **Want it built for you?** [work.kenkais.com](https://work.kenkais.com/)
 
 ---
