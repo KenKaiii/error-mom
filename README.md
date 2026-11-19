@@ -11,7 +11,6 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="MIT License"></a>
   <a href="https://youtube.com/@kenkaidoesai"><img src="https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube"></a>
-  <a href="https://www.skool.com/raid"><img src="https://img.shields.io/badge/Skool-Free%20community-7C3AED?style=for-the-badge" alt="Free Skool community"></a>
   <a href="https://www.skool.com/kenkai"><img src="https://img.shields.io/badge/Skool-Raid%2B-7C3AED?style=for-the-badge" alt="Raid+ on Skool"></a>
   <a href="https://www.kenkais.com"><img src="https://img.shields.io/badge/Website-kenkais.com-7C3AED?style=for-the-badge" alt="kenkais.com"></a>
 </p>
@@ -22,7 +21,6 @@ No Sentry subscription, no per-seat pricing, no data on someone else's cloud. On
 
 > [!TIP]
 > **Want to build your own apps with AI?**
-> - **Free community:** setup guides, a 7-day build challenge and 20+ projects: [skool.com/raid](https://www.skool.com/raid)
 > - **Raid+:** make money with AI, a sellable app in 30 days, live every Thursday: [skool.com/kenkai](https://www.skool.com/kenkai)
 > - **Want it built for you?** [work.kenkais.com](https://work.kenkais.com/)
 
@@ -260,7 +258,6 @@ Nice things you don't have to think about:
 ## 👥 Community
 
 - **YouTube**: [@kenkaidoesai](https://youtube.com/@kenkaidoesai) for tutorials and demos
-- **Free Skool community**: [skool.com/raid](https://www.skool.com/raid), a 7-day build challenge and 20+ step-by-step projects
 - **Raid+**: [skool.com/kenkai](https://www.skool.com/kenkai), make money with AI, a sellable app in 30 days, live every Thursday
 - **Want it built for you?** [work.kenkais.com](https://work.kenkais.com/)
 
